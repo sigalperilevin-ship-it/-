@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>עידן היופי — מערכת ניהול</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal-900:#04342c; --teal-700:#0f7a80; --teal-500:#14a3aa; --teal-200:#9fe1cb; --teal-100:#cdeeea; --teal-50:#eef8f7;
+  --pink-600:#993556; --pink-300:#ed93b1; --pink-100:#fbeaf0;
+  --ink:#23343a; --ink-soft:#5b6b6e; --ink-mute:#94a3a2;
+  --cream:#fbfbf9; --white:#ffffff; --line:#e2ece9;
+  --danger:#a32d2d; --danger-bg:#fcebeb;
+  --warn:#854f0b; --warn-bg:#faeeda;
+  --ok:#27500a; --ok-bg:#eaf3de;
+  --radius:14px; --shadow:0 2px 10px rgba(15,122,128,0.08);
+}
+:root:not([data-theme="light"]) {}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e8f0ef; --ink-soft:#b7c6c4; --ink-mute:#7f9391;
+    --cream:#0e1716; --white:#152220; --line:#23342f;
+    --teal-50:#132422; --teal-100:#183a35; --pink-100:#2a1620;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e8f0ef; --ink-soft:#b7c6c4; --ink-mute:#7f9391;
+  --cream:#0e1716; --white:#152220; --line:#23342f;
+  --teal-50:#132422; --teal-100:#183a35; --pink-100:#2a1620;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"Assistant",sans-serif; background:var(--cream); color:var(--ink);
+  direction:rtl; text-align:right; min-height:100vh; font-size:15px; line-height:1.5;
+}
+h1,h2,h3{font-family:"Frank Ruhl Libre",serif; font-weight:700; margin:0;}
+button{font-family:inherit; cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+#app{max-width:520px; margin:0 auto; min-height:100vh; background:var(--cream); position:relative; padding-bottom:78px;}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; padding:14px 18px;
+  background:linear-gradient(120deg,var(--teal-700),var(--teal-500)); color:#fff; position:sticky; top:0; z-index:20;
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand-mark{width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center;}
+.brand-mark svg{width:20px; height:20px;}
+.brand-text{font-family:"Frank Ruhl Libre",serif; font-size:18px; font-weight:700; line-height:1.1;}
+.brand-sub{font-size:10.5px; color:rgba(255,255,255,0.85);}
+.area-switch{display:flex; background:rgba(255,255,255,0.16); border-radius:20px; padding:3px; gap:2px;}
+.area-switch button{background:transparent; border:none; color:#fff; font-size:12.5px; padding:6px 12px; border-radius:18px; font-weight:600;}
+.area-switch button.active{background:#fff; color:var(--teal-700);}
+.screen{padding:18px;}
+.card{background:var(--white); border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:14px; box-shadow:var(--shadow);}
+.muted{color:var(--ink-soft); font-size:13px;}
+.pill{display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:600;}
+.pill-ok{background:var(--ok-bg); color:var(--ok);}
+.pill-warn{background:var(--warn-bg); color:var(--warn);}
+.pill-danger{background:var(--danger-bg); color:var(--danger);}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:10px; padding:11px 18px; font-size:14.5px; font-weight:600; border:1px solid transparent; width:100%;}
+.btn-primary{background:var(--teal-700); color:#fff;}
+.btn-primary:active{background:var(--teal-900);}
+.btn-ghost{background:transparent; border:1px solid var(--line); color:var(--ink);}
+.btn-danger{background:var(--danger-bg); color:var(--danger); border:1px solid transparent;}
+.btn-row{display:flex; gap:10px;}
+.btn-row .btn{width:auto; flex:1;}
+label.field{display:block; margin-bottom:14px;}
+.field-label{display:block; font-size:13px; color:var(--ink-soft); margin-bottom:5px; font-weight:600;}
+.field input[type=text],.field input[type=tel],.field input[type=email],.field textarea,.field select{
+  width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px; background:var(--white); color:var(--ink); font-size:14.5px;
+}
+.field .err{color:var(--danger); font-size:12.5px; margin-top:4px; display:none;}
+.field.has-err input{border-color:var(--danger);}
+.field.has-err .err{display:block;}
+.option{
+  display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:9px; background:var(--white);
+}
+.option input{accent-color:var(--teal-700);}
+.option.selected{border-color:var(--teal-700); background:var(--teal-50);}
+.progress-dots{display:flex; gap:6px; margin-bottom:16px;}
+.progress-dots span{height:5px; flex:1; border-radius:4px; background:var(--line);}
+.progress-dots span.on{background:var(--teal-500);}
+.hero{
+  background:linear-gradient(160deg,var(--teal-50),var(--pink-100)); border-radius:var(--radius); padding:22px 18px; margin-bottom:16px; border:1px solid var(--teal-100);
+}
+.hero h2{font-size:21px; color:var(--teal-900); margin-bottom:6px;}
+.section-title{font-size:12.5px; font-weight:700; color:var(--teal-700); text-transform:none; margin:20px 0 8px; letter-spacing:0;}
+.calendar-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+.calendar-head button{background:var(--teal-50); border:1px solid var(--teal-100); border-radius:8px; width:32px; height:32px; color:var(--teal-700); font-size:15px;}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px;}
+.cal-dow{text-align:center; font-size:11px; color:var(--ink-mute); padding-bottom:4px;}
+.cal-cell{aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:9px; font-size:13px; background:var(--white); border:1px solid var(--line); color:var(--ink);}
+.cal-cell.disabled{color:var(--ink-mute); background:var(--cream); border-color:var(--cream);}
+.cal-cell.today{border-color:var(--teal-500); font-weight:700;}
+.cal-cell.selected{background:var(--teal-700); color:#fff; border-color:var(--teal-700); font-weight:700;}
+.cal-cell.empty{visibility:hidden;}
+.slots{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px;}
+.slot{padding:10px 4px; text-align:center; border-radius:9px; border:1px solid var(--line); background:var(--white); font-size:13.5px; font-weight:600;}
+.slot.selected{background:var(--teal-700); color:#fff; border-color:var(--teal-700);}
+.slot.taken{color:var(--ink-mute); background:var(--cream); text-decoration:line-through; border-color:var(--cream);}
+.bottom-nav{
+  position:fixed; bottom:0; left:0; right:0; max-width:520px; margin:0 auto; background:var(--white); border-top:1px solid var(--line);
+  display:flex; z-index:30;
+}
+.bottom-nav button{flex:1; background:none; border:none; padding:10px 4px 8px; display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--ink-mute); font-size:11px;}
+.bottom-nav button.active{color:var(--teal-700); font-weight:700;}
+.icon{width:20px; height:20px;}
+.list-row{display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--line);}
+.list-row:last-child{border-bottom:none;}
+.avatar{width:40px; height:40px; border-radius:50%; background:var(--teal-100); color:var(--teal-900); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0;}
+.list-row-main{flex:1; min-width:0;}
+.list-row-title{font-weight:600; font-size:14.5px;}
+.list-row-sub{font-size:12.5px; color:var(--ink-soft);}
+.chip-row{display:flex; gap:8px; overflow-x:auto; margin-bottom:12px; padding-bottom:2px;}
+.chip{white-space:nowrap; padding:7px 14px; border-radius:20px; border:1px solid var(--line); background:var(--white); font-size:13px; color:var(--ink-soft); font-weight:600;}
+.chip.active{background:var(--teal-700); color:#fff; border-color:var(--teal-700);}
+.search-box{display:flex; align-items:center; gap:8px; background:var(--white); border:1px solid var(--line); border-radius:10px; padding:9px 12px; margin-bottom:12px;}
+.search-box input{border:none; outline:none; flex:1; background:transparent; font-size:14px; color:var(--ink);}
+.stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;}
+.stat-card{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:12px 8px; text-align:center;}
+.stat-num{font-size:19px; font-weight:700; color:var(--teal-700); font-family:"Frank Ruhl Libre",serif;}
+.stat-label{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+.photo-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px;}
+.photo-pair{border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+.photo-pair .imgs{display:flex;}
+.photo-pair .imgs > div{flex:1; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff;}
+.photo-pair .cap{padding:5px 8px; font-size:11px; color:var(--ink-soft); background:var(--white);}
+.back-link{display:inline-flex; align-items:center; gap:5px; color:var(--teal-700); font-weight:600; font-size:13.5px; margin-bottom:14px; background:none; border:none;}
+.toast{
+  position:fixed; bottom:92px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:10px 18px;
+  border-radius:24px; font-size:13.5px; z-index:60; opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.toast.show{opacity:1;}
+.bar-track{height:8px; background:var(--line); border-radius:6px; overflow:hidden;}
+.bar-fill{height:100%; background:var(--teal-500); border-radius:6px;}
+.consent-box{background:var(--white); border:1px solid var(--line); border-radius:12px; padding:14px; font-size:13px; color:var(--ink-soft); max-height:180px; overflow-y:auto; margin-bottom:14px; line-height:1.7;}
+.check-row{display:flex; align-items:flex-start; gap:10px; background:var(--white); border:1px solid var(--line); border-radius:10px; padding:12px 14px;}
+.check-row input{margin-top:3px; accent-color:var(--teal-700);}
+.empty-state{text-align:center; padding:30px 10px; color:var(--ink-soft);}
+.divider{height:1px; background:var(--line); margin:14px 0;}
+.note-item{background:var(--teal-50); border-radius:10px; padding:10px 12px; margin-bottom:8px; font-size:13px;}
+.rem-row{border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px; background:var(--white);}
+.rem-head{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+.rem-msg{background:var(--teal-50); border-radius:10px; padding:10px 12px; font-size:13px; white-space:pre-wrap; line-height:1.6; margin-bottom:10px; color:var(--ink);}
+.rem-actions{display:flex; gap:8px; flex-wrap:wrap;}
+.rem-actions .btn{width:auto; flex:1; padding:9px 10px; font-size:13px; text-decoration:none;}
+.btn-wa{background:#1f9d55; color:#fff;}
+.pill-mute{background:var(--line); color:var(--ink-soft);}
+.switch{position:relative; width:42px; height:24px; flex-shrink:0;}
+.switch input{opacity:0; width:0; height:0;}
+.switch span{position:absolute; inset:0; background:var(--line); border-radius:20px; transition:.2s;}
+.switch span:before{content:''; position:absolute; width:18px; height:18px; top:3px; right:3px; background:#fff; border-radius:50%; transition:.2s;}
+.switch input:checked + span{background:var(--teal-700);}
+.switch input:checked + span:before{transform:translateX(-18px);}
+.setting-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0;}
+.hint{font-size:11.5px; color:var(--ink-mute); margin-top:4px;}
+.note-date{font-size:11px; color:var(--ink-mute); margin-bottom:3px;}
+.qty{display:flex;align-items:center;gap:0;border:1px solid var(--teal-200);border-radius:10px;overflow:hidden;flex-shrink:0;}
+.qty button{background:var(--teal-50);border:none;width:34px;height:34px;font-size:18px;color:var(--teal-700);font-weight:700;}
+.qty span{min-width:30px;text-align:center;font-weight:700;}
+.prod{padding:14px;}
+.prod-head{display:flex;gap:12px;align-items:flex-start;cursor:pointer;}
+.prod-thumb{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--teal-700);background:var(--teal-50);}
+.prod-pigment{background:var(--pink-100);color:var(--pink-600);}
+.prod-sebum{background:var(--ok-bg);color:var(--ok);}
+.prod-age{background:var(--warn-bg);color:var(--warn);}
+.prod-spf{background:#fff4d6;color:#8a6200;}
+.prod-name{font-weight:700;font-size:15px;line-height:1.3;}
+.prod-en{font-size:11.5px;color:var(--ink-mute);direction:ltr;text-align:right;}
+.prod-for{font-size:12px;color:var(--teal-700);margin-top:3px;font-weight:600;}
+.prod-desc{font-size:13.5px;color:var(--ink-soft);margin:10px 0 6px;line-height:1.6;}
+.prod-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;}
+.prod-price{font-family:"Frank Ruhl Libre",serif;font-size:19px;font-weight:700;color:var(--teal-900);}
+:root[data-theme="dark"] .prod-price{color:var(--teal-200);}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .prod-price{color:var(--teal-200);}}
+.shop-add{width:auto;padding:8px 16px;font-size:13.5px;}
+.link-btn{background:none;border:none;color:var(--teal-700);font-weight:600;font-size:13px;padding:0;margin-bottom:4px;}
+.cart-bar{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:488px;background:var(--teal-700);color:#fff;border-radius:14px;padding:13px 16px;display:flex;align-items:center;gap:10px;z-index:40;cursor:pointer;box-shadow:0 6px 20px rgba(4,52,44,.25);font-weight:600;}
+.cart-bar span:nth-child(2){flex:1;}
+.cart-badge{background:#fff;color:var(--teal-700);border-radius:20px;min-width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;padding:0 6px;}
+.shop-banner{display:flex;align-items:center;gap:12px;cursor:pointer;background:linear-gradient(120deg,var(--pink-100),var(--teal-50));border-color:var(--teal-100);}
+.price-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);}
+.price-in{width:76px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--white);color:var(--ink);font-size:14px;text-align:center;}
+.bottom-nav button{font-size:10.5px;}
+.pedi-banner{display:flex;align-items:center;gap:12px;cursor:pointer;background:linear-gradient(120deg,var(--teal-50),#eef3fb);border-color:var(--teal-100);}
+.prod-foot-ic{background:#e6eefa;color:#2c5aa0;}
+.svc-tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:12px;margin-inline-start:4px;}
+.svc-face{background:var(--pink-100);color:var(--pink-600);}
+.svc-pedi{background:#e6eefa;color:#2c5aa0;}
+.price-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+.price-duo div{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;background:var(--white);}
+.price-duo b{display:block;font-family:"Frank Ruhl Libre",serif;font-size:22px;color:var(--teal-700);}
+.treat{display:flex;gap:12px;align-items:flex-start;}
+.treat .prod-thumb{width:40px;height:40px;}
+.opt-check{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:8px;background:var(--white);cursor:pointer;}
+.opt-check.selected{border-color:var(--teal-700);background:var(--teal-50);}
+.opt-check input{accent-color:var(--teal-700);pointer-events:none;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var KEY='edenBeautyData_v1';
+var STAFF_NAME='עידן';
+
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function pad(n){ return n<10 ? '0'+n : ''+n; }
+function fmtDate(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function todayStr(){ return fmtDate(new Date()); }
+var HDOW=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+var HDOW_S=['א','ב','ג','ד','ה','ו','ש'];
+var HMONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+
+function defaultData(){
+  var today=new Date();
+  function iso(offsetDays){ var d=new Date(); d.setDate(d.getDate()+offsetDays); return fmtDate(d); }
+  return {
+    currentClientId:null,
+    clients:[
+      {id:'c1', name:'מיכל לוי', phone:'0521234567', email:'michal@example.com', consent:true,
+       health:'ללא רגישויות ידועות. לא בהיריון. לא נוטלת תרופות רלוונטיות.',
+       sessionsTotal:12, sessionsUsed:7, paid:1400, owed:200,
+       photos:[{label:'אזור סנטר', before:true, after:true}],
+       history:[{date:iso(-40), note:'התחלת טיפול, שיער עבה באזור הסנטר'},{date:iso(-10), note:'שיפור ניכר, ירידה בכמות'}],
+       joined: iso(-45)},
+      {id:'c2', name:'נועה כהן', phone:'0537654321', email:'noa@example.com', consent:true,
+       health:'רגישות עורית קלה בעבר.',
+       sessionsTotal:10, sessionsUsed:9, paid:2000, owed:0,
+       photos:[{label:'שפה עליונה', before:true, after:true}],
+       history:[{date:iso(-90), note:'תחילת תהליך'},{date:iso(-5), note:'כמעט סיום סדרה, מרוצה מאוד'}],
+       joined: iso(-95)},
+      {id:'c3', name:'שירה אברהם', phone:'0541112233', email:'shira@example.com', consent:true,
+       health:'ללא הערות מיוחדות.',
+       sessionsTotal:12, sessionsUsed:2, paid:400, owed:400,
+       photos:[],
+       history:[{date:iso(-14), note:'מפגש ראשון בוצע'}],
+       joined: iso(-14)}
+    ],
+    appointments:[
+      {id:'a1', clientId:'c1', date:iso(0), time:'10:00', status:'confirmed', manual:false},
+      {id:'a2', clientId:'c2', date:iso(0), time:'13:00', status:'confirmed', manual:false},
+      {id:'a3', clientId:'c3', date:iso(1), time:'11:00', status:'confirmed', manual:false},
+      {id:'a4', clientId:'c1', date:iso(7), time:'10:00', status:'confirmed', manual:false}
+    ]
+  };
+}
+
+var DEFAULT_TEMPLATE='היי {שם} 🌸\nתזכורת קטנה מעידן היופי – מחכה לך {מתי}, יום {יום} {תאריך} בשעה {שעה}.\n{מפגש}\nלאישור הגעה השיבי 1, ואם צריך לשנות – השיבי 2 ונמצא זמן אחר.\nנתראה! 💗';
+function ensureDefaults(d){
+  if(!d.reminderSettings) d.reminderSettings={auto:true, sendTime:'17:00', template:DEFAULT_TEMPLATE, prep:''};
+  (d.appointments||[]).forEach(function(a){ if(!a.reminder) a.reminder={sentAt:null, response:null}; });
+  ensureShop(d);
+  return d;
+}
+function loadData(){
+  try{
+    var raw=localStorage.getItem(KEY);
+    if(raw) return ensureDefaults(JSON.parse(raw));
+  }catch(e){}
+  var d=ensureDefaults(defaultData());
+  saveData(d);
+  return d;
+}
+function saveData(d){
+  try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){}
+}
+var DB=loadData();
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+var STATE={area:'landing', view:'home', params:{}, intake:{step:0, answers:{}}, booking:{}, newClient:{}};
+
+function pushState(area,view,params){
+  STATE.area=area; STATE.view=view; STATE.params=params||{};
+  history.pushState({area:area,view:view,params:params||{}}, '', '');
+  render();
+}
+window.addEventListener('popstate', function(e){
+  if(e.state){
+    STATE.area=e.state.area; STATE.view=e.state.view; STATE.params=e.state.params||{};
+  } else {
+    STATE.area='landing'; STATE.view='home'; STATE.params={};
+  }
+  render();
+});
+history.replaceState({area:'landing',view:'home',params:{}}, '', '');
+
+function icon(name){
+  var icons={
+    home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+    calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+    users:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.3 2.6-6 5.9-6"/><circle cx="17" cy="9.5" r="2.6"/><path d="M15.5 20c0-2.7 1.9-4.9 4.5-5.4"/>',
+    bell:'<path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10 20a2 2 0 004 0"/>',
+    check:'<path d="M4 12l5 5L20 6"/>',
+    leaf:'<path d="M4 20c8-1 14-7 15-15C11 6 5 12 4 20z"/>',
+    send:'<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>',
+    drop:'<path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/><path d="M9.5 15a2.5 2.5 0 002.5 2.5"/>',
+    bag:'<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 016 0v2"/>',
+    foot:'<path d="M8 21c-2.5 0-3.5-2-3.2-4.5C5.2 13 6 10.5 6.5 8c.4-2 1.6-3 3-3 2 0 2.8 1.6 2.6 3.8-.3 3 .6 4.6 1.8 6.4 1.4 2.1.9 5.8-2.2 5.8z"/><circle cx="15.5" cy="4.5" r="1.2"/><circle cx="18.3" cy="6.3" r="1"/><circle cx="19.6" cy="9.2" r=".9"/>',
+    face:'<circle cx="12" cy="11" r="7"/><path d="M9.5 13.5c1.4 1.2 3.6 1.2 5 0"/><path d="M9.5 9.5h.01M14.5 9.5h.01"/>'
+  };
+  return '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(icons[name]||'')+'</svg>';
+}
+
+function topbar(){
+  var isAdmin = STATE.area==='admin';
+  return '<div class="topbar">'+
+    '<div class="brand">'+
+      '<div class="brand-mark">'+icon('leaf')+'</div>'+
+      '<div><div class="brand-text">עידן היופי</div><div class="brand-sub">קליניקה לטיפולי אסתטיקה מתקדמת</div></div>'+
+    '</div>'+
+    '<div class="area-switch">'+
+      '<button data-nav="landing" class="'+(!isAdmin?'active':'')+'">לקוחה</button>'+
+      '<button data-nav="admin" class="'+(isAdmin?'active':'')+'">ניהול</button>'+
+    '</div>'+
+  '</div>';
+}
+
+function client(id){
+  for(var i=0;i<DB.clients.length;i++) if(DB.clients[i].id===id) return DB.clients[i];
+  return null;
+}
+function apptsFor(dateStr){
+  return DB.appointments.filter(function(a){ return a.date===dateStr && a.status!=='cancelled'; });
+}
+function bookedTimesFor(dateStr){
+  return apptsFor(dateStr).map(function(a){ return a.time; });
+}
+function slotsForDate(d){
+  var dow=d.getDay();
+  if(dow===6) return [];
+  var start=9, end= dow===5 ? 13 : 17;
+  var out=[];
+  for(var h=start; h<=end; h++){ out.push(pad(h)+':00'); }
+  return out;
+}
+
+var PEDI_PRICE={women:200, men:250};
+function svcTag(a){ return a.service==='pedicure' ? '<span class="svc-tag svc-pedi">פדיקור רפואי</span>' : '<span class="svc-tag svc-face">S.P.L פנים</span>'; }
+function apptPrice(a){ return a.price || 200; }
+
+/* ---------- CLIENT AREA ---------- */
+
+function renderLandingHome(){
+  var loggedIn = DB.currentClientId ? client(DB.currentClientId) : null;
+  var html = '<div class="screen">';
+  html += '<div class="hero"><h2>שלום'+(loggedIn? ' '+loggedIn.name.split(' ')[0] : '')+'</h2>'+
+    '<p class="muted">שיטת S.P.L לסגירת זקיק השיער — לא פינצטה, לא שעווה, לא לייזר. תהליך מדורג שמפחית את הצמיחה לאורך זמן.</p></div>';
+
+  if(loggedIn){
+    html += '<button class="btn btn-primary" style="margin-bottom:10px" data-nav="landing:dashboard">האזור האישי שלי</button>';
+  }
+  html += '<button class="btn '+(loggedIn?'btn-ghost':'btn-primary')+'" style="margin-bottom:10px" data-nav="landing:intake">קביעת תור חדש</button>';
+
+  html += '<div class="card pedi-banner" data-nav="landing:pedicure"><div class="prod-thumb prod-foot-ic">'+icon('foot')+'</div><div style="flex:1"><b>פדיקור רפואי – ציפורניים וכף הרגל</b><div class="muted">ציפורן חודרנית ויבלות במכשור גרמני · נשים 200 ₪ · גברים 250 ₪</div></div><span style="color:var(--teal-700);font-size:20px">‹</span></div>';
+  html += '<div class="card shop-banner" data-nav="landing:shop"><div class="prod-thumb">'+icon('bag')+'</div><div style="flex:1"><b>חנות מוצרי הטיפוח</b><div class="muted">קרמי לחות, מדכאי מלנין, איזון בלוטות חלב ועוד – מוצרי דרמלוסופי</div></div><span style="color:var(--teal-700);font-size:20px">‹</span></div>';
+  html += '<div class="section-title">על השיטה</div>';
+  html += '<div class="card"><b>מתאים לך אם:</b><p class="muted" style="margin:6px 0 0">כבר ניסית פינצטה, חוטים, שעווה או גילוח, והשיער חוזר עבה, זקוף וקוצני.</p></div>';
+  html += '<div class="card"><b>איך זה עובד:</b><p class="muted" style="margin:6px 0 0">הטיפול מטפל רק בשיער ששינה מבנה, וסוגר בהדרגה את הזקיק הפעיל — כך שהצמיחה פוחתת עם הזמן, במקום רק להסיר שיער קיים.</p></div>';
+  html += '<div class="card"><b>מחיר:</b><p class="muted" style="margin:6px 0 0">200 ש"ח למפגש, במסגרת סדרה של 10–15 מפגשים בהתאם למצב, ותחזוקה תקופתית לאחר מכן.</p></div>';
+
+  html += '<div class="section-title">שאלות נפוצות</div>';
+  html += '<div class="card"><b>האם זה סופי וללא חזרה?</b><p class="muted" style="margin:6px 0 0">שום דבר לא נצחי לחלוטין כי הגוף משתנה, אך מדובר בירידה משמעותית עד כדי כך שלא נדרש טיפול קבוע ותקציב קבוע כמו קודם.</p></div>';
+  html += '<div class="card"><b>האם השיטה גורמת לעוד שיער?</b><p class="muted" style="margin:6px 0 0">לא. הטיפול לא מגרה זקיקים רדומים ולא גורם לצמיחת יתר.</p></div>';
+
+  if(!loggedIn){
+    html += '<button class="back-link" data-nav="landing:login" style="margin-top:6px">כבר לקוחה? כניסה לחשבון שלי</button>';
+  } else {
+    html += '<button class="back-link" data-action="logout" style="margin-top:6px">התנתקות</button>';
+  }
+  html += '</div>';
+  return html;
+}
+
+var PEDI_PROBLEMS=['ציפורן חודרנית','יבלות ועור קשה / מעובה','בעיות בציפורניים (עיבוי, עיוות, שינוי צבע)','סדקים ועור יבש בעקבים','טיפול כללי ותחזוקה של כף הרגל'];
+var PEDI_HEALTH=['סוכרת','נטילת מדללי דם','בעיות במחזור הדם או ירידה בתחושה בכף הרגל','פצע פתוח / זיהום באזור','אין לי אף אחד מאלה'];
+
+function renderPedicure(){
+  var html='<div class="screen">';
+  html += '<button class="back-link" data-nav="landing:home">'+icon('home')+' חזרה לעמוד הבית</button>';
+  html += '<div class="hero"><h2>פדיקור רפואי</h2><p class="muted" style="margin:0">טיפול מקצועי בבעיות ציפורניים וכף הרגל, במכשור גרמני מתקדם – לנשים ולגברים.</p></div>';
+
+  html += '<div class="section-title">במה אנחנו מטפלים</div>';
+  var items=[
+    ['ציפורן חודרנית','טיפול עדין ומדויק בציפורן שחודרת לעור, במכשור גרמני ייעודי – להקלה על הכאב והלחץ ולמניעת החמרה.'],
+    ['יבלות ועור קשה','הסרה של יבלות, עור מעובה ויובש בכף הרגל ובעקבים, להליכה נוחה ורגל רכה ובריאה.'],
+    ['בעיות ציפורניים','טיפול בציפורניים מעובות, מעוותות או שינו צבע – ניקוי, דילול ועיצוב מקצועי.'],
+    ['טיפול כללי בכף הרגל','סדקים בעקבים, עור יבש ותחזוקה שוטפת לשמירה על כף רגל בריאה.']
+  ];
+  items.forEach(function(it){
+    html += '<div class="card treat"><div class="prod-thumb prod-foot-ic">'+icon('foot')+'</div><div><b>'+it[0]+'</b><p class="muted" style="margin:4px 0 0">'+it[1]+'</p></div></div>';
+  });
+
+  html += '<div class="section-title">מחיר לטיפול</div>';
+  html += '<div class="card"><div class="price-duo"><div><span class="muted">נשים</span><b>200 ₪</b></div><div><span class="muted">גברים</span><b>250 ₪</b></div></div>'+
+    '<p class="muted" style="margin:10px 0 0">המחיר כולל את הטיפול המלא בכף הרגל. מצבים מורכבים ייתכן שידרשו טיפול המשך – נתאם יחד לפי הצורך.</p></div>';
+
+  html += '<div class="card" style="background:var(--warn-bg);border-color:transparent"><b style="color:var(--warn)">חשוב לדעת</b><p class="muted" style="margin:4px 0 0">אם יש לך סוכרת, את/ה נוטל/ת מדללי דם או שיש פצע או זיהום באזור – יש לציין זאת בשאלון לפני קביעת התור, כדי שנתאים את הטיפול בבטחה.</p></div>';
+
+  html += '<button class="btn btn-primary" data-action="pediStart">קביעת תור לפדיקור רפואי</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderPediIntake(){
+  var P=STATE.pedi||(STATE.pedi={gender:null, problems:[], health:[]});
+  var html='<div class="screen">';
+  html += '<button class="back-link" data-nav="landing:pedicure">'+icon('home')+' חזרה לפדיקור רפואי</button>';
+  html += '<h2 style="margin-bottom:6px">כמה פרטים לפני קביעת התור</h2><p class="muted" style="margin-bottom:14px">כדי שנתאים את הטיפול בדיוק עבורך</p>';
+
+  html += '<div class="section-title" style="margin-top:0">הטיפול עבור</div>';
+  [['women','אישה – 200 ₪'],['men','גבר – 250 ₪']].forEach(function(g){
+    var sel=P.gender===g[0];
+    html += '<div class="option '+(sel?'selected':'')+'" data-action="pediGender" data-g="'+g[0]+'"><input type="radio" '+(sel?'checked':'')+' readonly><span>'+g[1]+'</span></div>';
+  });
+
+  html += '<div class="section-title">מה מפריע לך? (אפשר לבחור כמה)</div>';
+  PEDI_PROBLEMS.forEach(function(t,i){
+    var sel=P.problems.indexOf(t)>-1;
+    html += '<div class="opt-check '+(sel?'selected':'')+'" data-action="pediToggle" data-list="problems" data-i="'+i+'"><input type="checkbox" '+(sel?'checked':'')+'><span>'+t+'</span></div>';
+  });
+
+  html += '<div class="section-title">מצב בריאותי</div>';
+  PEDI_HEALTH.forEach(function(t,i){
+    var sel=P.health.indexOf(t)>-1;
+    html += '<div class="opt-check '+(sel?'selected':'')+'" data-action="pediToggle" data-list="health" data-i="'+i+'"><input type="checkbox" '+(sel?'checked':'')+'><span>'+t+'</span></div>';
+  });
+
+  html += '<label class="check-row" style="margin-top:14px"><input type="checkbox" id="pedi-consent"><span>אני מאשר/ת שהפרטים נכונים, ושאעדכן על כל שינוי במצב הבריאותי לפני הטיפול</span></label>';
+  html += '<button class="btn btn-primary" style="margin-top:16px" data-action="pediContinue">המשך לבחירת מועד</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderLogin(){
+  var html='<div class="screen">';
+  html += '<button class="back-link" data-nav="landing:home">'+icon('home')+' חזרה</button>';
+  html += '<h2 style="margin-bottom:14px">כניסה לחשבון</h2>';
+  html += '<p class="muted" style="margin-bottom:16px">לצורך הדגמה, בחרי אחת מהלקוחות הקיימות:</p>';
+  DB.clients.forEach(function(c){
+    html += '<div class="list-row" data-action="loginAs" data-id="'+c.id+'" style="cursor:pointer">'+
+      '<div class="avatar">'+c.name.split(' ').map(function(w){return w[0];}).join('')+'</div>'+
+      '<div class="list-row-main"><div class="list-row-title">'+c.name+'</div><div class="list-row-sub">'+c.phone+'</div></div>'+
+    '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function INTAKE_Q(){
+  return [
+    {key:'method', q:'באיזו שיטה את משתמשת כיום להסרת שיער בפנים?', opts:['פינצטה','חוטים (Threading)','שעווה','גילוח','אף אחת מהן / משהו אחר']},
+    {key:'texture', q:'איך היית מתארת את השיער שמפריע לך?', opts:['כהה, עבה וזקוף (קוצני)','דק ובהיר כמו פלומה']},
+    {key:'process', q:'חשוב לנו שיהיה ברור: מדובר בתהליך של מספר מפגשים לסגירת הזקיק, ולא טיפול חד-פעמי. זה מתאים לך?', opts:['כן, אני מבינה ומעוניינת בתהליך','אני מחפשת פתרון חד-פעמי']},
+    {key:'notlaser', q:'רק לוודא — השיטה שלנו אינה IPL ואינה לייזר. זה בסדר מבחינתך?', opts:['כן, בסדר גמור','חיפשתי ספציפית לייזר/IPL']},
+    {key:'urgency', q:'מתי תרצי להתחיל?', opts:['מוכנה להתחיל עכשיו','עדיין שוקלת, לא כרגע']}
+  ];
+}
+
+function renderIntake(){
+  var qs=INTAKE_Q();
+  var step=STATE.intake.step;
+  var html='<div class="screen">';
+  html += '<button class="back-link" data-action="intakeBack">'+icon('home')+' '+(step===0?'ביטול':'שאלה קודמת')+'</button>';
+  html += '<div class="progress-dots">';
+  for(var i=0;i<qs.length;i++){ html += '<span class="'+(i<=step?'on':'')+'"></span>'; }
+  html += '</div>';
+
+  if(step<qs.length){
+    var item=qs[step];
+    html += '<h2 style="font-size:18px; margin-bottom:16px">'+item.q+'</h2>';
+    item.opts.forEach(function(opt,idx){
+      var selected = STATE.intake.answers[item.key]===opt;
+      html += '<div class="option '+(selected?'selected':'')+'" data-action="intakeSelect" data-key="'+item.key+'" data-val="'+opt+'">'+
+        '<input type="radio" name="q" '+(selected?'checked':'')+' readonly>'+
+        '<span>'+opt+'</span></div>';
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderIntakeFollowup(){
+  var html='<div class="screen">';
+  html += '<div class="card" style="text-align:center; padding:28px 16px">'+
+    '<div style="width:52px;height:52px;border-radius:50%;background:var(--teal-50);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--teal-700)">'+icon('bell')+'</div>'+
+    '<h2 style="font-size:18px; margin-bottom:8px">אין לחץ בכלל</h2>'+
+    '<p class="muted">נשמח להשאיר לך פרטים ולחזור אלייך בעתיד, בלי דחיפות ובלי מכירה.</p></div>';
+  html += '<label class="field"><span class="field-label">שם מלא</span><input type="text" id="fu-name" placeholder="לדוגמה: דנה כהן"></label>';
+  html += '<label class="field"><span class="field-label">טלפון</span><input type="tel" id="fu-phone" placeholder="05XXXXXXXX"><span class="err" id="fu-phone-err">נא להזין מספר שמתחיל ב-05 ו-10 ספרות</span></label>';
+  html += '<button class="btn btn-primary" data-action="submitFollowup">השארת פרטים</button>';
+  html += '<button class="btn btn-ghost" style="margin-top:10px" data-nav="landing:home">חזרה לעמוד הבית</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderConsent(){
+  var html='<div class="screen">';
+  html += '<button class="back-link" data-action="intakeBackToLast">'+icon('home')+' שאלה קודמת</button>';
+  html += '<h2 style="margin-bottom:12px">אישור אישי</h2>';
+  html += '<div class="consent-box">אני מאשרת כי קראתי והבנתי שמדובר בתהליך רב-מפגשים לסגירת זקיק השיער, וכי התוצאות משתנות מאישה לאישה. אני מאשרת שאין לי מניעה רפואית ידועה, ושאעדכן את הקלינאית בכל שינוי במצב הבריאותי, הריון, או טיפול תרופתי. אני מבינה כי תמונות "לפני/אחרי" יילקחו לצורך מעקב אישי אחר ההתקדמות ויהיו זמינות לצפייה שלי באזור האישי.</div>';
+  html += '<label class="check-row"><input type="checkbox" id="consent-check"><span>קראתי, מבינה ומאשרת את האמור לעיל</span></label>';
+  html += '<button class="btn btn-primary" style="margin-top:16px" data-action="confirmConsent">המשך לקביעת תור</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderBooking(){
+  var b=STATE.booking;
+  if(!b.month) { var t=new Date(); b.month=t.getMonth(); b.year=t.getFullYear(); }
+  var html='<div class="screen">';
+  if(b.service==='pedicure'){
+    html += '<button class="back-link" data-action="toPediIntake">'+icon('home')+' חזרה לשאלון</button>';
+    html += '<h2 style="margin-bottom:4px">בחירת מועד</h2><p class="muted" style="margin-bottom:12px">פדיקור רפואי · '+b.price+' ₪</p>';
+  } else {
+  html += '<button class="back-link" data-action="toConsent">'+icon('home')+' חזרה לאישור</button>';
+  html += '<h2 style="margin-bottom:12px">בחרי תאריך</h2>';
+  }
+
+  var today=new Date(); today.setHours(0,0,0,0);
+  var maxDate=new Date(); maxDate.setDate(maxDate.getDate()+365);
+  var first=new Date(b.year,b.month,1);
+  var startDow=first.getDay();
+  var daysInMonth=new Date(b.year,b.month+1,0).getDate();
+
+  html += '<div class="card">';
+  html += '<div class="calendar-head"><button data-action="calPrev">›</button><b>'+HMONTHS[b.month]+' '+b.year+'</b><button data-action="calNext">‹</button></div>';
+  html += '<div class="cal-grid">';
+  HDOW_S.forEach(function(d){ html+='<div class="cal-dow">'+d+'</div>'; });
+  for(var i=0;i<startDow;i++){ html+='<div class="cal-cell empty"></div>'; }
+  for(var d=1; d<=daysInMonth; d++){
+    var dateObj=new Date(b.year,b.month,d);
+    var ds=fmtDate(dateObj);
+    var isPast = dateObj < today;
+    var isTooFar = dateObj > maxDate;
+    var slots = slotsForDate(dateObj);
+    var disabled = isPast || isTooFar || slots.length===0;
+    var cls='cal-cell';
+    if(disabled) cls+=' disabled';
+    if(ds===todayStr()) cls+=' today';
+    if(b.date===ds) cls+=' selected';
+    html += '<div class="'+cls+'" '+(disabled?'':'data-action="pickDate" data-date="'+ds+'"')+'>'+d+'</div>';
+  }
+  html += '</div></div>';
+
+  if(b.date){
+    var slots=slotsForDate(new Date(b.date+'T00:00:00'));
+    var booked=bookedTimesFor(b.date);
+    html += '<div class="section-title">שעות פנויות ל-'+b.date.split('-').reverse().join('.')+'</div>';
+    html += '<div class="slots">';
+    slots.forEach(function(s){
+      var taken=booked.indexOf(s)>-1;
+      var sel=b.time===s;
+      html += '<div class="slot '+(taken?'taken':'')+(sel?' selected':'')+'" '+(taken?'':'data-action="pickTime" data-time="'+s+'"')+'>'+s+'</div>';
+    });
+    html += '</div>';
+  }
+
+  if(b.date && b.time){
+    html += '<button class="btn btn-primary" style="margin-top:18px" data-action="confirmBooking">קביעת התור</button>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderClientDetailsForm(){
+  var html='<div class="screen">';
+  html += '<h2 style="margin-bottom:14px">פרטים אחרונים</h2>';
+  html += '<p class="muted" style="margin-bottom:14px">'+(STATE.booking.service==='pedicure'?'פדיקור רפואי · ':'')+'התור נשמר עבורך ל-'+STATE.booking.date.split('-').reverse().join('.')+' בשעה '+STATE.booking.time+'</p>';
+  html += '<label class="field"><span class="field-label">שם מלא</span><input type="text" id="nc-name" placeholder="לדוגמה: דנה כהן"></label>';
+  html += '<label class="field"><span class="field-label">טלפון</span><input type="tel" id="nc-phone" placeholder="05XXXXXXXX"><span class="err" id="nc-phone-err">נא להזין מספר שמתחיל ב-05 ו-10 ספרות</span></label>';
+  html += '<label class="field"><span class="field-label">אימייל</span><input type="email" id="nc-email" placeholder="name@example.com"></label>';
+  html += '<button class="btn btn-primary" data-action="finalizeBooking">אישור וסיום</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderBookingDone(){
+  var html='<div class="screen"><div class="card" style="text-align:center; padding:30px 16px">'+
+    '<div style="width:56px;height:56px;border-radius:50%;background:var(--ok-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--ok)">'+icon('check')+'</div>'+
+    '<h2 style="font-size:19px; margin-bottom:8px">התור נקבע בהצלחה</h2>'+
+    '<p class="muted">נשלחה תזכורת שתגיע אלייך קרוב למועד התור.</p></div>'+
+    '<button class="btn btn-primary" data-nav="landing:dashboard">האזור האישי שלי</button></div>';
+  return html;
+}
+
+function renderClientDashboard(){
+  var c=client(DB.currentClientId);
+  if(!c){ pushState('landing','home',{}); return ''; }
+  var upcoming=DB.appointments.filter(function(a){return a.clientId===c.id && a.status!=='cancelled' && a.date>=todayStr();})
+    .sort(function(a,b){return a.date.localeCompare(b.date)||a.time.localeCompare(b.time);});
+  var next=upcoming[0];
+  var pct=c.sessionsTotal? Math.round((c.sessionsUsed/c.sessionsTotal)*100) : 0;
+
+  var html='<div class="screen">';
+  html += '<h2 style="margin-bottom:4px">שלום, '+c.name.split(' ')[0]+'</h2>';
+  html += '<p class="muted" style="margin-bottom:16px">האזור האישי שלך</p>';
+
+  html += '<div class="card">';
+  if(next){
+    html += '<div class="section-title" style="margin-top:0">התור הקרוב</div>';
+    html += '<div style="font-size:16px; font-weight:700">'+next.date.split('-').reverse().join('.')+' · '+next.time+' '+svcTag(next)+'</div>';
+    html += '<div class="btn-row" style="margin-top:12px">'+
+      '<button class="btn btn-ghost" data-action="cancelAppt" data-id="'+next.id+'">ביטול תור</button>'+
+      '<button class="btn btn-ghost" data-action="rescheduleStart" data-id="'+next.id+'">שינוי מועד</button></div>';
+  } else {
+    html += '<div class="muted" style="margin-bottom:10px">אין תור קרוב שנקבע</div>';
+    html += '<button class="btn btn-primary" data-nav="landing:booking-only">קביעת תור</button>';
+  }
+  html += '<button class="btn btn-ghost" style="margin-top:10px" data-nav="landing:pedicure">'+icon('foot')+' תור לפדיקור רפואי</button>';
+  html += '</div>';
+  if(c.sessionsTotal){
+
+  html += '<div class="card">';
+  html += '<div class="section-title" style="margin-top:0">החבילה שלך</div>';
+  html += '<div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px"><span>'+c.sessionsUsed+' מתוך '+c.sessionsTotal+' מפגשים</span><span class="muted">'+pct+'%</span></div>';
+  html += '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>';
+  if(c.owed>0){ html += '<div style="margin-top:10px"><span class="pill pill-warn">יתרה לתשלום: '+c.owed+' ₪</span></div>'; }
+  else { html += '<div style="margin-top:10px"><span class="pill pill-ok">אין יתרת חוב</span></div>'; }
+  html += '</div>';
+  }
+
+  if(c.photos && c.photos.length){
+    html += '<div class="section-title">תמונות לפני / אחרי</div>';
+    html += '<div class="photo-grid">';
+    c.photos.forEach(function(p){
+      html += '<div class="photo-pair"><div class="imgs">'+
+        '<div style="background:'+'#cfe9ea'+'">לפני</div>'+
+        '<div style="background:'+'#0f7a80'+'">אחרי</div>'+
+      '</div><div class="cap">'+p.label+'</div></div>';
+    });
+    html += '</div>';
+  }
+  html += myOrdersBlock(c);
+  html += '</div>';
+  return html;
+}
+
+/* ---------- ADMIN AREA ---------- */
+
+function adminNav(){
+  var v=STATE.view;
+  return '<div class="bottom-nav">'+
+    '<button data-nav="admin:overview" class="'+(v==='overview'?'active':'')+'">'+icon('home')+'סקירה</button>'+
+    '<button data-nav="admin:calendar" class="'+(v==='calendar'?'active':'')+'">'+icon('calendar')+'יומן</button>'+
+    '<button data-nav="admin:clients" class="'+(v==='clients'||v==='client-detail'?'active':'')+'">'+icon('users')+'לקוחות</button>'+
+    '<button data-nav="admin:reminders" class="'+(v==='reminders'?'active':'')+'">'+icon('send')+'תזכורות</button>'+
+    '<button data-nav="admin:alerts" class="'+(v==='alerts'?'active':'')+'">'+icon('bell')+'התראות</button>'+
+    '<button data-nav="admin:shop" class="'+(v==='shop'?'active':'')+'">'+icon('bag')+'מוצרים'+(DB.orders.filter(function(o){return o.status==='new';}).length?' •':'')+'</button>'+
+  '</div>';
+}
+
+function computeAlerts(){
+  var out=[];
+  DB.clients.forEach(function(c){
+    var remaining=c.sessionsTotal-c.sessionsUsed;
+    if(c.sessionsTotal && remaining<=2 && remaining>0) out.push({type:'package', client:c, text:'נותרו '+remaining+' מפגשים בחבילה'});
+    if(c.owed>0) out.push({type:'unpaid', client:c, text:'יתרת חוב פתוחה: '+c.owed+' ₪'});
+  });
+  var tmr=new Date(); tmr.setDate(tmr.getDate()+1);
+  var tmrStr=fmtDate(tmr);
+  DB.appointments.filter(function(a){return a.date===tmrStr && a.status!=='cancelled';}).forEach(function(a){
+    var c=client(a.clientId);
+    if(c) out.push({type:'tomorrow', client:c, text:'תור מחר בשעה '+a.time});
+  });
+  return out;
+}
+
+function renderAdminOverview(){
+  var today=todayStr();
+  var todays=apptsFor(today).sort(function(a,b){return a.time.localeCompare(b.time);});
+  var revenue=0;
+  DB.clients.forEach(function(c){ /* rough proxy: count today's sessions * 200 */ });
+  todays.forEach(function(a){ revenue+=apptPrice(a); });
+  var newToday=DB.clients.filter(function(c){return c.joined===today;}).length;
+
+  var html='<div class="screen">';
+  html += '<h2 style="margin-bottom:14px">סקירת יום עסקים</h2>';
+  html += '<div class="stat-grid">'+
+    '<div class="stat-card"><div class="stat-num">'+todays.length+'</div><div class="stat-label">תורים היום</div></div>'+
+    '<div class="stat-card"><div class="stat-num">'+revenue+' ₪</div><div class="stat-label">הכנסה משוערת</div></div>'+
+    '<div class="stat-card"><div class="stat-num">'+newToday+'</div><div class="stat-label">לקוחות חדשות</div></div>'+
+  '</div>';
+
+  var newOrders=DB.orders.filter(function(o){return o.status==='new';});
+  if(newOrders.length){
+    html += '<div class="card" data-nav="admin:shop" style="cursor:pointer; display:flex; align-items:center; gap:12px; background:var(--pink-100); border-color:transparent">'+
+      '<div class="prod-thumb prod-pigment">'+icon('bag')+'</div><div style="flex:1"><b>'+newOrders.length+' הזמנות מוצרים חדשות</b><div class="muted">סה״כ '+money(newOrders.reduce(function(t,o){return t+o.total;},0))+' – לחצי לטיפול</div></div></div>';
+  }
+  var rq=reminderQueue();
+  var pend=rq.items.filter(function(a){return !a.reminder.sentAt;}).length;
+  if(rq.items.length){
+    html += '<div class="card" data-nav="admin:reminders" style="cursor:pointer; display:flex; align-items:center; gap:12px; background:var(--teal-50); border-color:var(--teal-100)">'+
+      '<div class="avatar" style="background:var(--teal-700); color:#fff">'+icon('send')+'</div>'+
+      '<div class="list-row-main"><div class="list-row-title">תזכורות ל'+rq.label+'</div><div class="list-row-sub">'+(pend? pend+' ממתינות לשליחה' : 'כל התזכורות נשלחו ✓')+'</div></div>'+
+      '<span style="color:var(--teal-700); font-size:18px">‹</span></div>';
+  }
+  html += '<div class="section-title" style="margin-top:0">תורים להיום</div>';
+  html += '<div class="card">';
+  if(todays.length===0){ html += '<div class="empty-state">אין תורים היום</div>'; }
+  todays.forEach(function(a){
+    var c=client(a.clientId);
+    html += '<div class="list-row" data-action="openClient" data-id="'+a.clientId+'" style="cursor:pointer">'+
+      '<div class="avatar">'+(c?c.name.split(' ').map(function(w){return w[0];}).join(''):'?')+'</div>'+
+      '<div class="list-row-main"><div class="list-row-title">'+(c?c.name:'לקוח/ה')+'</div><div class="list-row-sub">'+a.time+' '+svcTag(a)+(a.manual?' · תור ידני':'')+'</div></div>'+
+    '</div>';
+  });
+  html += '</div>';
+  html += '<button class="btn btn-primary" data-nav="admin:add-appt">הוספת תור ידנית</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderAdminCalendar(){
+  var sel=STATE.params.date || todayStr();
+  var dObj=new Date(sel+'T00:00:00');
+  var todays=apptsFor(sel).sort(function(a,b){return a.time.localeCompare(b.time);});
+  var html='<div class="screen">';
+  html += '<h2 style="margin-bottom:14px">יומן תורים</h2>';
+  html += '<div class="card">';
+  html += '<div class="calendar-head">'+
+    '<button data-action="adminDay" data-dir="1">›</button>'+
+    '<b>'+HDOW[dObj.getDay()]+' · '+sel.split('-').reverse().join('.')+'</b>'+
+    '<button data-action="adminDay" data-dir="-1">‹</button>'+
+  '</div>';
+  if(todays.length===0){ html += '<div class="empty-state">אין תורים ביום זה</div>'; }
+  todays.forEach(function(a){
+    var c=client(a.clientId);
+    html += '<div class="list-row" data-action="openClient" data-id="'+a.clientId+'" style="cursor:pointer">'+
+      '<div class="avatar">'+(c?c.name.split(' ').map(function(w){return w[0];}).join(''):'?')+'</div>'+
+      '<div class="list-row-main"><div class="list-row-title">'+(c?c.name:'לקוח/ה')+'</div><div class="list-row-sub">'+a.time+' '+svcTag(a)+(a.manual?' · תור ידני':'')+'</div></div>'+
+      '<button class="btn btn-ghost" style="width:auto; padding:6px 10px; font-size:12px" data-action="sendReminder" data-id="'+a.clientId+'">תזכורת</button>'+
+    '</div>';
+  });
+  html += '</div>';
+  html += '<button class="btn btn-primary" data-nav="admin:add-appt">הוספת תור ידנית</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderAdminAddAppt(){
+  var b=STATE.booking;
+  if(!b.month){ var t=new Date(); b.month=t.getMonth(); b.year=t.getFullYear(); }
+  var html='<div class="screen">';
+  html += '<button class="back-link" data-nav="admin:overview">'+icon('home')+' ביטול</button>';
+  html += '<h2 style="margin-bottom:14px">הוספת תור ידנית</h2>';
+
+  html += '<label class="field"><span class="field-label">לקוחה קיימת (רשות)</span><select id="ap-existing"><option value="">— לקוחה חדשה —</option>';
+  DB.clients.forEach(function(c){ html+='<option value="'+c.id+'">'+c.name+' · '+c.phone+'</option>'; });
+  html += '</select></label>';
+  html += '<label class="field"><span class="field-label">סוג טיפול</span><select id="ap-service">'+
+    '<option value="face">S.P.L הסרת שיער בפנים – 200 ₪</option>'+
+    '<option value="pedi-women">פדיקור רפואי – אישה – 200 ₪</option>'+
+    '<option value="pedi-men">פדיקור רפואי – גבר – 250 ₪</option></select></label>';
+  html += '<div id="ap-new-fields">';
+  html += '<label class="field"><span class="field-label">שם מלא</span><input type="text" id="ap-name" placeholder="שם הלקוחה"></label>';
+  html += '<label class="field"><span class="field-label">טלפון</span><input type="tel" id="ap-phone" placeholder="05XXXXXXXX"><span class="err" id="ap-phone-err">נא להזין מספר שמתחיל ב-05 ו-10 ספרות</span></label>';
+  html += '</div>';
+
+  var today=new Date(); today.setHours(0,0,0,0);
+  var maxDate=new Date(); maxDate.setDate(maxDate.getDate()+365);
+  var first=new Date(b.year,b.month,1);
+  var startDow=first.getDay();
+  var daysInMonth=new Date(b.year,b.month+1,0).getDate();
+  html += '<div class="card">';
+  html += '<div class="calendar-head"><button data-action="calPrev">›</button><b>'+HMONTHS[b.month]+' '+b.year+'</b><button data-action="calNext">‹</button></div>';
+  html += '<div class="cal-grid">';
+  HDOW_S.forEach(function(d){ html+='<div class="cal-dow">'+d+'</div>'; });
+  for(var i=0;i<startDow;i++){ html+='<div class="cal-cell empty"></div>'; }
+  for(var d=1; d<=daysInMonth; d++){
+    var dateObj=new Date(b.year,b.month,d);
+    var ds=fmtDate(dateObj);
+    var isPast=dateObj<today, isTooFar=dateObj>maxDate;
+    var slots=slotsForDate(dateObj);
+    var disabled=isPast||isTooFar||slots.length===0;
+    var cls='cal-cell'; if(disabled) cls+=' disabled'; if(ds===todayStr()) cls+=' today'; if(b.date===ds) cls+=' selected';
+    html += '<div class="'+cls+'" '+(disabled?'':'data-action="pickDate" data-date="'+ds+'"')+'>'+d+'</div>';
+  }
+  html += '</div></div>';
+
+  if(b.date){
+    var slots=slotsForDate(new Date(b.date+'T00:00:00'));
+    var booked=bookedTimesFor(b.date);
+    html += '<div class="slots">';
+    slots.forEach(function(s){
+      var taken=booked.indexOf(s)>-1, sel=b.time===s;
+      html += '<div class="slot '+(taken?'taken':'')+(sel?' selected':'')+'" '+(taken?'':'data-action="pickTime" data-time="'+s+'"')+'>'+s+'</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<button class="btn btn-primary" style="margin-top:16px" data-action="saveManualAppt">שמירת תור</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderAdminClients(){
+  var filter=STATE.params.filter || 'all';
+  var q=(STATE.params.q||'').trim();
+  var list=DB.clients.slice();
+  if(filter==='ending') list=list.filter(function(c){ return c.sessionsTotal && (c.sessionsTotal-c.sessionsUsed)<=2; });
+  if(filter==='unpaid') list=list.filter(function(c){ return c.owed>0; });
+  if(q) list=list.filter(function(c){ return c.name.indexOf(q)>-1 || c.phone.indexOf(q)>-1; });
+
+  var html='<div class="screen">';
+  html += '<h2 style="margin-bottom:14px">לקוחות</h2>';
+  html += '<div class="search-box">'+icon('users')+'<input type="text" id="client-search" placeholder="חיפוש לפי שם או טלפון" value="'+q+'"></div>';
+  html += '<div class="chip-row">'+
+    '<button class="chip '+(filter==='all'?'active':'')+'" data-action="filterClients" data-f="all">הכל</button>'+
+    '<button class="chip '+(filter==='ending'?'active':'')+'" data-action="filterClients" data-f="ending">חבילה מסתיימת</button>'+
+    '<button class="chip '+(filter==='unpaid'?'active':'')+'" data-action="filterClients" data-f="unpaid">חוב פתוח</button>'+
+  '</div>';
+  html += '<div class="card">';
+  if(list.length===0){ html += '<div class="empty-state">לא נמצאו לקוחות</div>'; }
+  list.forEach(function(c){
+    var remaining=c.sessionsTotal-c.sessionsUsed;
+    html += '<div class="list-row" data-action="openClient" data-id="'+c.id+'" style="cursor:pointer">'+
+      '<div class="avatar">'+c.name.split(' ').map(function(w){return w[0];}).join('')+'</div>'+
+      '<div class="list-row-main"><div class="list-row-title">'+c.name+'</div><div class="list-row-sub">'+(c.sessionsTotal?'נותרו '+remaining+' מפגשים':'פדיקור רפואי')+(c.owed>0?' · חוב '+c.owed+' ₪':'')+'</div></div>'+
+    '</div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function renderClientDetail(){
+  var c=client(STATE.params.id);
+  if(!c) return '<div class="screen">לקוחה לא נמצאה</div>';
+  var remaining=c.sessionsTotal-c.sessionsUsed;
+  var pct=c.sessionsTotal? Math.round((c.sessionsUsed/c.sessionsTotal)*100) : 0;
+
+  var html='<div class="screen">';
+  html += '<button class="back-link" data-nav="admin:clients">'+icon('home')+' חזרה לרשימה</button>';
+  html += '<div class="card" style="display:flex; align-items:center; gap:14px">'+
+    '<div class="avatar" style="width:52px; height:52px; font-size:16px">'+c.name.split(' ').map(function(w){return w[0];}).join('')+'</div>'+
+    '<div><div style="font-weight:700; font-size:16.5px">'+c.name+'</div><div class="muted">'+c.phone+'</div></div>'+
+  '</div>';
+
+  html += '<div class="card">';
+  html += '<div class="section-title" style="margin-top:0">חבילה ותשלום</div>';
+  if(c.sessionsTotal){
+  html += '<div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px"><span>'+c.sessionsUsed+' מתוך '+c.sessionsTotal+' מפגשים ('+remaining+' נותרו)</span><span class="muted">'+pct+'%</span></div>';
+  html += '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>';
+  } else { html += '<div style="font-size:13.5px">'+svcTag({service:'pedicure'})+' לקוח/ה לפדיקור רפואי</div>'; }
+  html += '<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap">'+
+    '<span class="pill pill-ok">שולם: '+c.paid+' ₪</span>'+
+    (c.owed>0?'<span class="pill pill-warn">חוב: '+c.owed+' ₪</span>':'<span class="pill pill-ok">אין חוב</span>')+
+  '</div></div>';
+
+  html += '<div class="card"><div class="section-title" style="margin-top:0">סטטוס בריאותי (מטופס ההסכמה)</div><p class="muted" style="margin:0">'+c.health+'</p></div>';
+
+  html += '<div class="card"><div class="section-title" style="margin-top:0">היסטוריית טיפולים</div>';
+  c.history.slice().reverse().forEach(function(h){
+    html += '<div class="note-item"><div class="note-date">'+h.date.split('-').reverse().join('.')+'</div>'+h.note+'</div>';
+  });
+  html += '<label class="field" style="margin-top:10px"><textarea id="new-note" rows="2" placeholder="הוספת הערה חדשה..."></textarea></label>';
+  html += '<button class="btn btn-ghost" data-action="addNote" data-id="'+c.id+'">הוספת הערה</button></div>';
+
+  if(c.photos && c.photos.length){
+    html += '<div class="card"><div class="section-title" style="margin-top:0">תמונות לפני / אחרי</div><div class="photo-grid">';
+    c.photos.forEach(function(p){
+      html += '<div class="photo-pair"><div class="imgs">'+
+        '<div style="background:#cfe9ea; color:#0f7a80">לפני</div>'+
+        '<div style="background:#0f7a80">אחרי</div>'+
+      '</div><div class="cap">'+p.label+'</div></div>';
+    });
+    html += '</div></div>';
+  }
+
+  html += '<button class="btn btn-primary" data-action="sendReminder" data-id="'+c.id+'">שליחת תזכורת ללקוחה</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderAdminAlerts(){
+  var alerts=computeAlerts();
+  var html='<div class="screen">';
+  html += '<h2 style="margin-bottom:14px">התראות</h2>';
+  html += '<div class="card">';
+  if(alerts.length===0){ html += '<div class="empty-state">אין התראות כרגע</div>'; }
+  alerts.forEach(function(a){
+    var pillClass = a.type==='unpaid' ? 'pill-warn' : (a.type==='tomorrow'?'pill-ok':'pill-danger');
+    html += '<div class="list-row" data-action="openClient" data-id="'+a.client.id+'" style="cursor:pointer">'+
+      '<div class="avatar">'+a.client.name.split(' ').map(function(w){return w[0];}).join('')+'</div>'+
+      '<div class="list-row-main"><div class="list-row-title">'+a.client.name+'</div><div class="list-row-sub">'+a.text+'</div></div>'+
+    '</div>';
+  });
+  html += '</div></div>';
+  return html;
+}
+
+/* ---------- REMINDERS (יום לפני) ---------- */
+
+function addDays(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x; }
+// which appointment dates get a reminder today: tomorrow; on Friday also Sunday; nothing on Shabbat
+function reminderTargetDates(){
+  var now=new Date(), dow=now.getDay();
+  if(dow===6) return [];
+  var out=[fmtDate(addDays(now,1))];
+  if(dow===5) out.push(fmtDate(addDays(now,2)));
+  return out;
+}
+function reminderQueue(){
+  var dates=reminderTargetDates();
+  var items=DB.appointments.filter(function(a){ return dates.indexOf(a.date)>-1 && a.status!=='cancelled'; })
+    .sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); });
+  items.forEach(function(a){ if(!a.reminder) a.reminder={sentAt:null,response:null}; });
+  var label = dates.length===2 ? 'שבת וראשון' : 'מחר';
+  return {dates:dates, items:items, label:label};
+}
+function phoneValid(p){ return /^05\d{8}$/.test(p||''); }
+function waLink(phone,text){ return 'https://wa.me/972'+phone.slice(1)+'?text='+encodeURIComponent(text); }
+function nextApptFor(clientId){
+  var t=todayStr();
+  return DB.appointments.filter(function(a){ return a.clientId===clientId && a.status!=='cancelled' && a.date>=t; })
+    .sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); })[0];
+}
+function buildReminder(a){
+  var c=client(a.clientId); var st=DB.reminderSettings;
+  var d=new Date(a.date+'T00:00:00');
+  var diff=Math.round((d-new Date(todayStr()+'T00:00:00'))/86400000);
+  var when = diff===0?'היום':(diff===1?'מחר':'ב');
+  var sessionLine='';
+  if(c && c.sessionsTotal){ var n=Math.min(c.sessionsUsed+1,c.sessionsTotal); sessionLine='זה המפגש ה-'+n+' מתוך '+c.sessionsTotal+' בסדרה שלך 💪'; }
+  var msg=(st.template||DEFAULT_TEMPLATE)
+    .replace(/\{שם\}/g, c? c.name.split(' ')[0] : '')
+    .replace(/\{מתי\}/g, when)
+    .replace(/\{יום\}/g, HDOW[d.getDay()])
+    .replace(/\{תאריך\}/g, a.date.split('-').reverse().slice(0,2).join('.'))
+    .replace(/\{שעה\}/g, a.time)
+    .replace(/\{מפגש\}/g, sessionLine)
+    .replace(/מחכה לך ב, /,'מחכה לך ');
+  if(st.prep && st.prep.trim()) msg += '\n'+st.prep.trim();
+  return msg.replace(/\n{2,}/g,'\n');
+}
+function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderAdminReminders(){
+  var st=DB.reminderSettings;
+  var q=reminderQueue();
+  var html='<div class="screen">';
+  html += '<h2 style="margin-bottom:4px">תזכורות תורים</h2>';
+  html += '<p class="muted" style="margin:0 0 14px">תזכורת בוואטסאפ יום לפני התור · לא נשלח בשבת, ובשישי יוצאות גם התזכורות של יום ראשון</p>';
+
+  var sent=q.items.filter(function(a){return a.reminder.sentAt;}).length;
+  var ok=q.items.filter(function(a){return a.reminder.response==='confirmed';}).length;
+  var chg=q.items.filter(function(a){return a.reminder.response==='change';}).length;
+  html += '<div class="stat-grid">'+
+    '<div class="stat-card"><div class="stat-num">'+sent+'/'+q.items.length+'</div><div class="stat-label">נשלחו</div></div>'+
+    '<div class="stat-card"><div class="stat-num">'+ok+'</div><div class="stat-label">אישרו הגעה</div></div>'+
+    '<div class="stat-card"><div class="stat-num" style="color:'+(chg?'var(--warn)':'var(--teal-700)')+'">'+chg+'</div><div class="stat-label">ביקשו שינוי</div></div>'+
+  '</div>';
+
+  html += '<div class="section-title" style="margin-top:0">תורים ל'+q.label+'</div>';
+  if(!q.dates.length){
+    html += '<div class="card"><div class="empty-state">שבת – לא שולחים תזכורות היום. התזכורות של ראשון יצאו ביום שישי.</div></div>';
+  } else if(!q.items.length){
+    html += '<div class="card"><div class="empty-state">אין תורים ל'+q.label+' – אין למי להזכיר 🌿</div></div>';
+  }
+  q.items.forEach(function(a){
+    var c=client(a.clientId); if(!c) return;
+    var msg=buildReminder(a);
+    var r=a.reminder;
+    var status = r.response==='confirmed' ? '<span class="pill pill-ok">אישרה הגעה</span>'
+      : r.response==='change' ? '<span class="pill pill-warn">ביקשה שינוי</span>'
+      : r.sentAt ? '<span class="pill pill-mute">נשלחה · '+r.sentAt+'</span>'
+      : '<span class="pill pill-danger">ממתינה לשליחה</span>';
+    var d=new Date(a.date+'T00:00:00');
+    html += '<div class="rem-row">';
+    html += '<div class="rem-head"><div class="avatar">'+c.name.split(' ').map(function(w){return w[0];}).join('')+'</div>'+
+      '<div class="list-row-main"><div class="list-row-title">'+c.name+'</div><div class="list-row-sub">'+HDOW[d.getDay()]+' · '+a.time+' · '+c.phone+'</div></div>'+status+'</div>';
+    if(!phoneValid(c.phone)){
+      html += '<div class="pill pill-danger" style="display:block; margin-bottom:8px">מספר טלפון לא תקין – יש לעדכן בכרטיס הלקוחה</div>';
+    } else {
+      html += '<div class="rem-msg">'+esc(msg)+'</div>';
+      html += '<div class="rem-actions">'+
+        '<a class="btn btn-wa" href="'+waLink(c.phone,msg)+'" target="_blank" rel="noopener" data-action="markSent" data-id="'+a.id+'">'+(r.sentAt?'שליחה שוב':'שליחה בוואטסאפ')+'</a>';
+      if(r.sentAt){
+        html += '<button class="btn btn-ghost" data-action="remResp" data-id="'+a.id+'" data-r="confirmed">השיבה 1 · מגיעה</button>'+
+          '<button class="btn btn-ghost" data-action="remResp" data-id="'+a.id+'" data-r="change">השיבה 2 · שינוי</button>';
+      }
+      html += '</div>';
+      if(r.response==='change'){
+        html += '<button class="btn btn-primary" style="margin-top:8px" data-action="openClient" data-id="'+c.id+'">פתיחת כרטיס לקוחה לתיאום מועד חדש</button>';
+      }
+    }
+    html += '</div>';
+  });
+
+  html += '<div class="section-title">הגדרות תזכורת</div>';
+  html += '<div class="card">';
+  html += '<div class="setting-row"><div><div style="font-weight:600">תזכורת אוטומטית יום לפני</div><div class="hint">כשהמערכת תחובר ל-WhatsApp Business ההודעות ייצאו לבד בשעה שנקבעה</div></div>'+
+    '<label class="switch"><input type="checkbox" id="rem-auto" '+(st.auto?'checked':'')+'><span></span></label></div>';
+  html += '<div class="divider"></div>';
+  html += '<label class="field"><span class="field-label">שעת שליחה</span><select id="rem-time">';
+  ['10:00','12:00','14:00','16:00','17:00','18:00','19:00','20:00'].forEach(function(t){ html+='<option '+(st.sendTime===t?'selected':'')+'>'+t+'</option>'; });
+  html += '</select></label>';
+  html += '<label class="field"><span class="field-label">נוסח ההודעה</span><textarea id="rem-template" rows="6">'+esc(st.template)+'</textarea>'+
+    '<div class="hint">אפשר להשתמש ב: {שם} {מתי} {יום} {תאריך} {שעה} {מפגש}</div></label>';
+  html += '<label class="field"><span class="field-label">הנחיות הכנה לפני טיפול (רשות)</span><input type="text" id="rem-prep" value="'+esc(st.prep||'')+'" placeholder="שורה שתתווסף בסוף ההודעה"></label>';
+  html += '<div class="btn-row"><button class="btn btn-primary" data-action="saveRemSettings">שמירת הגדרות</button><button class="btn btn-ghost" data-action="resetRemTemplate">נוסח ברירת מחדל</button></div>';
+  html += '</div>';
+  html += '</div>';
+  return html;
+}
+
+/* ---------- SHOP: מוצרי דרמלוסופי ---------- */
+
+var SHOP_CATS=[
+  {key:'all', label:'הכל'},
+  {key:'moist', label:'לחות והרגעה'},
+  {key:'pigment', label:'הבהרה ומדכאי מלנין'},
+  {key:'sebum', label:'איזון שומן ובלוטות חלב'},
+  {key:'age', label:'אנטי-אייג׳ינג וסרומים'},
+  {key:'clean', label:'ניקוי'},
+  {key:'spf', label:'הגנה מהשמש'}
+];
+var DELIVERY_FEE=30;
+
+function defaultProducts(){
+  var P=function(id,cat,name,en,desc,forWho,use,price){ return {id:id,cat:cat,name:name,en:en,desc:desc,forWho:forWho,use:use,price:price,active:true}; };
+  return [
+    /* לחות */
+    P('p01','moist','קרם לחות אולטרה לעור שמן','Ultra Moisturizing for Oily Skin','לחות קלילה שלא מכבידה ולא סותמת נקבוביות, מעניקה לחות לעור שמן בטכנולוגיה ייעודית.','עור שמן ומעורב','בוקר וערב על עור נקי, אחרי הסרום.',220),
+    P('p02','moist','קרם לחות הידרטור אקטיבי – עור רגיל עד יבש','Active Hydrator Complex','קרם לחות עשיר שמשקם את שכבת המגן של העור ושומר על לחות לאורך היום.','עור רגיל עד יבש','בוקר וערב על עור נקי.',220),
+    P('p03','moist','קרם לחות הידרטור אקטיבי – עור יבש מאוד','Active Hydrator – Very Dry','גרסה עשירה במיוחד ללחות עמוקה ולהרגעת תחושת מתיחות ויובש.','עור יבש מאוד','בוקר וערב, אפשר שכבה נוספת בלילה.',230),
+    P('p04','moist','ביו קרם להרגעת העור','Bio Ultra Calm Cream','קרם מרגיע לעור רגיש ומגורה – מפחית אדמומיות ותחושת צריבה. מתאים מאוד לאחר טיפול.','עור רגיש / אחרי טיפול','מריחה עדינה על האזור המטופל, 1–2 פעמים ביום.',210),
+    P('p05','moist','סרום הידרייט פלוס עם חומצה היאלורונית','Hydrate Plus Serum','סרום לחות מרוכז עם חומצה היאלורונית שממלא את העור בלחות ומעניק מראה רענן ומלא.','כל סוגי העור, עור מיובש','2–3 טיפות לפני קרם הלחות.',260),
+    P('p06','moist','סרום 24 לחות וזוהר','24 Moist & Glow Serum','סרום לחות שמעניק לעור זוהר ומראה בריא לאורך כל היום.','עור עייף וחסר זוהר','בבוקר לפני הלחות וההגנה.',270),
+    P('p07','moist','סרום משקם מחסום','Barrier Restore Serum','סרום אנטי-דלקתי שמפחית אדמומיות ונפיחות ומחזק את מחסום העור.','עור רגיש, מגורה או פגוע','בוקר וערב לפני קרם הלחות.',280),
+    P('p08','moist','מסכת סופר לחות','Super Hydrating Mask','מסכה אינטנסיבית לחדירת לחות עמוקה וארוכת טווח.','עור צמא ללחות','1–2 פעמים בשבוע, 10–15 דקות ושטיפה.',190),
+    /* הבהרה */
+    P('p10','pigment','בי-ווייט קרם – מדכא מלנין','B-White Cream','קרם הבהרה מתקדם לכתמי פיגמנטציה – מבהיר כתמים קיימים ומסייע במניעת כתמים חדשים (שמש, הורמונליים, אחרי פצעים, גיל). מכיל חומצה טרנקסמית, חומצה קוג׳ית ושורש ליקוריץ.','כתמים ופיגמנטציה','לפי ההנחיה בטיפול, באצבעות בלבד, הרחק מהעיניים. חובה SPF 50 ביום.',320),
+    P('p11','pigment','בי-ווייט ג׳ל מרוכז','B-White Concentrated Gel','ג׳ל טיפולי מרוכז לכתמים עקשניים, בפעולה כפולה.','כתמים עקשניים','רק בהנחיה אישית, על הכתמים בלבד.',340),
+    P('p12','pigment','בי-ווייט קצף ניקוי (ללא SLS)','B-White Cleanser Foam','קצף ניקוי לעור עם גוון לא אחיד – מנקה לעומק תוך שמירה על איזון העור.','עור עם כתמים / גוון לא אחיד','בוקר וערב, עיסוי עדין ושטיפה.',150),
+    P('p13','pigment','פיגמנטו ניו סקין','Pigmento New Skin','מבהיר שפועל להפחתת ייצור המלנין ולחסימת שחרורו.','פיגמנטציה ומניעת כתמים','לפי ההנחיה בטיפול. SPF 50 ביום.',330),
+    P('p14','pigment','ווייט אינטנסיב ליקוויג׳ל','White Intensive Liquigel','תכשיר הבהרה לכתמי שמש, כתמים הורמונליים וכתמים אחרי אקנה, על בסיס רכיבים חדשניים.','כתמי שמש / הורמונליים / אחרי אקנה','לפי ההנחיה בטיפול.',320),
+    P('p15','pigment','ווייט בוסטר ליקוויג׳ל','White Booster Liquigel','מבהיר שמשלב גם חידוש עור ומיצוק.','כתמים + עור עייף','לפי ההנחיה בטיפול.',320),
+    /* שומן ובלוטות חלב */
+    P('p20','sebum','סבו קרם – איזון בלוטות החלב','Sebo Cream','קרם לאיזון הפרשת השומן מבלוטות החלב – מפחית ברק ושומניות ומשאיר עור נקי ומאוזן.','עור שמן, ברק יתר','בוקר וערב על עור נקי.',240),
+    P('p21','sebum','סרום משקם ACN לעור שומני','ACN Recover Serum','סרום לחות משקם ומרגיע שמותאם לעור שמן ובעייתי.','עור שמן ובעייתי','בוקר וערב לפני הקרם.',270),
+    P('p22','sebum','טונר לעור שמן','All Day Toner for Oily Skin','נוזל חומצי שמסיר עודפי שומן ומייבש פצעונים.','עור שמן עם פצעונים','אחרי הניקוי, בפד כותנה.',150),
+    P('p23','sebum','קצף ניקוי עמוק לעור בעייתי (ללא SLS)','Deep Cleanser for Problematic Skin','קצף לניקוי יסודי ועמוק של עור הפנים הבעייתי.','עור שמן / אקנה','בוקר וערב.',150),
+    P('p24','sebum','אקנה טריפל ג׳ל','ACN.E Triple Gel','ג׳ל לא שומני לטיפול בפצעים דלקתיים ולוויסות עודפי שומן.','אקנה דלקתית','נקודתית על הפצעים, לפי ההנחיה.',190),
+    P('p25','sebum','אקנה ביו','ACN.E Bio','תכשיר לטיפול מהיר בפצעים דלקתיים.','פצעים דלקתיים','נקודתית, לפי ההנחיה.',190),
+    P('p26','sebum','מסכה לעור בעייתי','Mask for Problematic Skin','מסכה בפעולה משולשת, כולל ניקוי עמוק.','עור שמן ובעייתי','1–2 פעמים בשבוע.',190),
+    /* אנטי אייג׳ינג */
+    P('p30','age','מולטי פפטיד ליפטינג סרום','Multi Peptides Lifting Serum','סרום שמחזק את מחסום העור ומשפר מיצוק ברמה התאית.','עור בוגר, אובדן גמישות','בוקר וערב לפני הקרם.',340),
+    P('p31','age','טיימלס סרום + רטיניל לינולאט','Timeless Serum','סרום אנטי-אייג׳ינג עם נגזרת ויטמין A.','קמטים וקווי הבעה','בערב בלבד. SPF 50 ביום.',340),
+    P('p32','age','סרום ממצק','Firming Serum','סרום מרוכז שממצק, מותח ומחדד את קווי המתאר.','עור רפוי','בוקר וערב.',320),
+    P('p33','age','רדיאנט סרום עם קומפלקס חומצות','Radiant Serum','סרום שמחדש ומחזק את השכבה החיצונית של העור ומשפר את זוהרו.','עור עייף, מרקם לא אחיד','בערב. SPF 50 ביום.',300),
+    P('p34','age','סרום מתקן קמטים','Ultimate Wrinkle Repair Serum','סרום מתקן ומונע קמטים.','קמטים','בוקר וערב.',330),
+    P('p35','age','טוטאל ריפייר פורטה ללילה','Total Repair Forte','קרם הזנה ושיקום ללילה.','עור בוגר / מיובש','בערב על עור נקי.',290),
+    P('p36','age','קרם עיניים מתקן','Eye Zone Total Repair','טיפול לאזור העיניים העדין.','אזור העיניים','בוקר וערב, בטפיחות עדינות.',240),
+    P('p37','age','קרם צוואר אולטרה ממצק','Ultra Firming Neck Cream','קרם טיפולי לצוואר ולמחשוף שמסייע למצק את העור.','צוואר ומחשוף','בוקר וערב בתנועות כלפי מעלה.',260),
+    /* ניקוי */
+    P('p40','clean','קצף ניקוי לכל סוגי העור','Deep Cleanser Foam','קצף ניקוי עמוק ועדין לשימוש יומיומי.','כל סוגי העור','בוקר וערב.',140),
+    /* הגנה */
+    P('p50','spf','קרם לחות עם הגנה SPF 50','Moisturizing & Protection SPF 50','לחות והגנה מהשמש במוצר אחד. חובה בזמן שימוש במבהירים.','כל סוגי העור','כל בוקר, וחידוש במהלך היום.',190),
+    P('p51','spf','לחות + SPF 50 דמי מייקאפ','SPF 50 Demi Makeup','הגנה גבוהה עם גוון קל שמאחיד את מראה העור.','מי שרוצה גם כיסוי קל','כל בוקר.',210),
+    P('p52','spf','קליר סופט SPF 50','Clear Soft SPF 50','הגנה שקופה וקלילה לשימוש יומיומי.','עור שמן / מעורב','כל בוקר.',200)
+  ];
+}
+
+function ensureShop(d){
+  if(!d.products) d.products=defaultProducts();
+  if(!d.orders) d.orders=[];
+  if(!d.cart) d.cart={};
+  if(d.pricesConfirmed===undefined) d.pricesConfirmed=false;
+  return d;
+}
+function product(id){ for(var i=0;i<DB.products.length;i++) if(DB.products[i].id===id) return DB.products[i]; return null; }
+function cartCount(){ var n=0; for(var k in DB.cart) n+=DB.cart[k]; return n; }
+function cartTotal(){ var t=0; for(var k in DB.cart){ var p=product(k); if(p) t+=p.price*DB.cart[k]; } return t; }
+function money(n){ return n.toLocaleString('he-IL')+' ₪'; }
+var ORDER_STATUS={'new':'התקבלה','ready':'מוכנה לאיסוף/משלוח','done':'נמסרה','cancelled':'בוטלה'};
+var ORDER_PILL={'new':'pill-warn','ready':'pill-ok','done':'pill-mute','cancelled':'pill-danger'};
+
+function catLabel(k){ for(var i=0;i<SHOP_CATS.length;i++) if(SHOP_CATS[i].key===k) return SHOP_CATS[i].label; return ''; }
+
+function qtyControl(id){
+  var q=DB.cart[id]||0;
+  if(!q) return '<button class="btn btn-primary shop-add" data-action="cartAdd" data-id="'+id+'">הוספה לסל</button>';
+  return '<div class="qty"><button data-action="cartAdd" data-id="'+id+'" aria-label="הוספה">+</button><span>'+q+'</span><button data-action="cartSub" data-id="'+id+'" aria-label="הפחתה">−</button></div>';
+}
+
+function cartBar(){
+  var n=cartCount();
+  if(!n) return '';
+  return '<div class="cart-bar" data-nav="landing:cart"><span class="cart-badge">'+n+'</span><span>לסל שלי</span><b>'+money(cartTotal())+'</b></div>';
+}
+
+function renderShop(){
+  var cat=STATE.params.cat||'all';
+  var open=STATE.params.open||null;
+  var html='<div class="screen">';
+  html += '<button class="back-link" data-nav="landing:'+(DB.currentClientId?'dashboard':'home')+'">'+icon('home')+' חזרה</button>';
+  html += '<div class="hero" style="margin-bottom:12px"><h2>מוצרי הטיפוח שלי</h2><p class="muted" style="margin:0">מוצרי דרמלוסופי המקצועיים, שאני ממליצה עליהם ללקוחות שלי. אפשר להזמין כאן ולאסוף בטיפול הבא או לקבל משלוח עד הבית.</p></div>';
+  html += '<div class="chip-row">';
+  SHOP_CATS.forEach(function(c){ html += '<button class="chip '+(cat===c.key?'active':'')+'" data-action="shopCat" data-cat="'+c.key+'">'+c.label+'</button>'; });
+  html += '</div>';
+  var list=DB.products.filter(function(p){ return p.active && (cat==='all'||p.cat===cat); });
+  var lastCat=null;
+  list.forEach(function(p){
+    if(cat==='all' && p.cat!==lastCat){ html += '<div class="section-title">'+catLabel(p.cat)+'</div>'; lastCat=p.cat; }
+    var isOpen=open===p.id;
+    html += '<div class="card prod">'+
+      '<div class="prod-head" data-action="prodToggle" data-id="'+p.id+'">'+
+        '<div class="prod-thumb prod-'+p.cat+'">'+icon('drop')+'</div>'+
+        '<div style="flex:1;min-width:0"><div class="prod-name">'+esc(p.name)+'</div><div class="prod-en">'+esc(p.en)+'</div>'+
+        '<div class="prod-for">מתאים ל: '+esc(p.forWho)+'</div></div>'+
+      '</div>'+
+      '<p class="prod-desc">'+esc(p.desc)+'</p>'+
+      (isOpen? '<div class="note-item" style="margin-bottom:10px"><b>אופן שימוש:</b> '+esc(p.use)+'</div>' : '<button class="link-btn" data-action="prodToggle" data-id="'+p.id+'">אופן שימוש ›</button>')+
+      '<div class="prod-foot"><div class="prod-price">'+money(p.price)+'</div>'+qtyControl(p.id)+'</div>'+
+    '</div>';
+  });
+  if(!list.length) html += '<div class="empty-state">אין מוצרים בקטגוריה זו כרגע</div>';
+  html += '<p class="hint" style="text-align:center;margin-top:8px">לא בטוחה מה מתאים לך? כתבי לי בהערות להזמנה ואחזור אלייך עם המלצה אישית.</p>';
+  if(cartCount()) html += '<div style="height:70px"></div>';
+  html += '</div>';
+  html += cartBar();
+  return html;
+}
+
+function renderCart(){
+  var me=DB.currentClientId? client(DB.currentClientId) : null;
+  var del=STATE.params.delivery||'pickup';
+  var html='<div class="screen">';
+  html += '<button class="back-link" data-nav="landing:shop">'+icon('home')+' המשך קנייה</button>';
+  html += '<h2 style="margin-bottom:14px">הסל שלי</h2>';
+  var ids=Object.keys(DB.cart);
+  if(!ids.length){
+    html += '<div class="card empty-state">הסל ריק<br><button class="btn btn-primary" style="margin-top:14px" data-nav="landing:shop">למוצרים</button></div></div>';
+    return html;
+  }
+  html += '<div class="card">';
+  ids.forEach(function(id){
+    var p=product(id); if(!p) return;
+    html += '<div class="list-row"><div class="list-row-main"><div class="list-row-title">'+esc(p.name)+'</div><div class="list-row-sub">'+money(p.price)+' ליחידה · סה״כ '+money(p.price*DB.cart[id])+'</div></div>'+qtyControl(id)+'</div>';
+  });
+  html += '</div>';
+
+  html += '<div class="section-title">איך לקבל את המוצרים?</div>';
+  html += '<div class="option '+(del==='pickup'?'selected':'')+'" data-action="setDelivery" data-v="pickup"><input type="radio" '+(del==='pickup'?'checked':'')+' readonly><span>איסוף בקליניקה / בטיפול הבא – ללא עלות</span></div>';
+  html += '<div class="option '+(del==='ship'?'selected':'')+'" data-action="setDelivery" data-v="ship"><input type="radio" '+(del==='ship'?'checked':'')+' readonly><span>משלוח עד הבית – '+DELIVERY_FEE+' ₪</span></div>';
+
+  html += '<div class="section-title">פרטים</div>';
+  html += '<label class="field"><span class="field-label">שם מלא</span><input type="text" id="or-name" value="'+(me?esc(me.name):'')+'"></label>';
+  html += '<label class="field"><span class="field-label">טלפון</span><input type="tel" id="or-phone" value="'+(me?esc(me.phone):'')+'" placeholder="05XXXXXXXX"><span class="err" id="or-phone-err">נא להזין מספר שמתחיל ב-05 ו-10 ספרות</span></label>';
+  if(del==='ship') html += '<label class="field"><span class="field-label">כתובת למשלוח</span><input type="text" id="or-addr" placeholder="רחוב, מספר, עיר"></label>';
+  html += '<label class="field"><span class="field-label">הערה (רשות)</span><textarea id="or-note" rows="2" placeholder="למשל: אשמח להמלצה על מוצר לעור רגיש"></textarea></label>';
+
+  var fee=del==='ship'?DELIVERY_FEE:0;
+  html += '<div class="card"><div class="setting-row"><span>מוצרים</span><span>'+money(cartTotal())+'</span></div>'+
+    (fee? '<div class="setting-row"><span>משלוח</span><span>'+money(fee)+'</span></div>' : '')+
+    '<div class="divider" style="margin:6px 0"></div><div class="setting-row" style="font-weight:700;font-size:16px"><span>סה״כ לתשלום</span><span>'+money(cartTotal()+fee)+'</span></div>'+
+    '<div class="hint">התשלום מתבצע באיסוף או לפני המשלוח (ביט / אשראי / מזומן).</div></div>';
+  html += '<button class="btn btn-primary" data-action="placeOrder">שליחת הזמנה</button>';
+  html += '</div>';
+  return html;
+}
+
+function renderOrderDone(){
+  var o=DB.orders.filter(function(x){return x.id===STATE.params.id;})[0];
+  var html='<div class="screen"><div class="card" style="text-align:center; padding:30px 16px">'+
+    '<div style="width:56px;height:56px;border-radius:50%;background:var(--ok-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--ok)">'+icon('check')+'</div>'+
+    '<h2 style="font-size:19px; margin-bottom:8px">ההזמנה התקבלה!</h2>'+
+    '<p class="muted">'+(o? 'מספר הזמנה '+o.num+' · '+money(o.total)+'<br>'+(o.delivery==='ship'?'נעדכן אותך כשהמשלוח יוצא.':'המוצרים יחכו לך בקליניקה.') : '')+'</p></div>'+
+    '<button class="btn btn-primary" data-nav="landing:'+(DB.currentClientId?'dashboard':'home')+'">'+(DB.currentClientId?'לאזור האישי':'לעמוד הבית')+'</button></div>';
+  return html;
+}
+
+function myOrdersBlock(c){
+  var mine=DB.orders.filter(function(o){return o.clientId===c.id;}).slice().reverse();
+  var html='<div class="section-title">ההזמנות שלי</div><div class="card">';
+  if(!mine.length) html += '<div class="muted">עוד לא הזמנת מוצרים</div>';
+  mine.forEach(function(o){
+    html += '<div class="list-row"><div class="list-row-main"><div class="list-row-title">הזמנה '+o.num+' · '+money(o.total)+'</div>'+
+      '<div class="list-row-sub">'+o.date.split('-').reverse().join('.')+' · '+o.items.map(function(i){return esc(i.name)+(i.qty>1?' ×'+i.qty:'');}).join(', ')+'</div></div>'+
+      '<span class="pill '+ORDER_PILL[o.status]+'">'+ORDER_STATUS[o.status]+'</span></div>';
+  });
+  html += '<button class="btn btn-ghost" style="margin-top:10px" data-nav="landing:shop">'+icon('bag')+' לחנות המוצרים</button></div>';
+  return html;
+}
+
+/* ---- admin ---- */
+function renderAdminShop(){
+  var tab=STATE.params.tab||'orders';
+  var html='<div class="screen">';
+  html += '<h2 style="margin-bottom:12px">מוצרים והזמנות</h2>';
+  html += '<div class="chip-row"><button class="chip '+(tab==='orders'?'active':'')+'" data-action="shopTab" data-tab="orders">הזמנות ('+DB.orders.filter(function(o){return o.status==='new';}).length+' חדשות)</button>'+
+    '<button class="chip '+(tab==='prices'?'active':'')+'" data-action="shopTab" data-tab="prices">מחירון ומלאי</button></div>';
+  if(tab==='orders'){
+    var list=DB.orders.slice().reverse();
+    if(!list.length) html += '<div class="card empty-state">עדיין אין הזמנות</div>';
+    list.forEach(function(o){
+      html += '<div class="rem-row">'+
+        '<div class="rem-head"><div class="avatar">'+esc(o.name).split(' ').map(function(w){return w[0]||'';}).join('')+'</div>'+
+        '<div class="list-row-main"><div class="list-row-title">'+esc(o.name)+' · '+money(o.total)+'</div><div class="list-row-sub">הזמנה '+o.num+' · '+o.date.split('-').reverse().join('.')+' · '+(o.delivery==='ship'?'משלוח: '+esc(o.address||''):'איסוף בקליניקה')+'</div></div>'+
+        '<span class="pill '+ORDER_PILL[o.status]+'">'+ORDER_STATUS[o.status]+'</span></div>'+
+        '<div class="rem-msg">'+o.items.map(function(i){return '• '+esc(i.name)+' ×'+i.qty+' – '+money(i.price*i.qty);}).join('\n')+(o.fee? '\n• משלוח – '+money(o.fee):'')+(o.note? '\nהערה: '+esc(o.note):'')+'</div>'+
+        '<div class="rem-actions">'+
+          (o.status==='new'? '<button class="btn btn-primary" data-action="orderStatus" data-id="'+o.id+'" data-s="ready">סימון כמוכנה</button>' : '')+
+          (o.status==='ready'? '<button class="btn btn-primary" data-action="orderStatus" data-id="'+o.id+'" data-s="done">סימון כנמסרה</button>' : '')+
+          (phoneValid(o.phone)? '<a class="btn btn-wa" target="_blank" rel="noopener" href="'+waLink(o.phone,'היי '+o.name.split(' ')[0]+' 🌸 הזמנה '+o.num+' מעידן היופי '+(o.status==='new'?'התקבלה ואנחנו מכינות אותה':'מוכנה')+'. סה״כ '+money(o.total)+'.')+'">וואטסאפ</a>' : '')+
+          (o.status!=='done'&&o.status!=='cancelled'? '<button class="btn btn-ghost" data-action="orderStatus" data-id="'+o.id+'" data-s="cancelled">ביטול</button>' : '')+
+        '</div></div>';
+    });
+  } else {
+    if(!DB.pricesConfirmed) html += '<div class="card" style="background:var(--warn-bg);border-color:transparent;color:var(--warn)"><b>שימי לב:</b> המחירים כאן הם מחירים התחלתיים לדוגמה. עדכני כל מחיר לפי המחירון שלך ולחצי "שמירת מחירון".</div>';
+    var lastCat=null;
+    DB.products.forEach(function(p){
+      if(p.cat!==lastCat){ html += '<div class="section-title">'+catLabel(p.cat)+'</div>'; lastCat=p.cat; }
+      html += '<div class="price-row"><div style="flex:1;min-width:0"><div class="list-row-title" style="font-size:13.5px">'+esc(p.name)+'</div><div class="list-row-sub">'+esc(p.en)+'</div></div>'+
+        '<input type="number" min="0" class="price-in" data-id="'+p.id+'" value="'+p.price+'"><span class="muted">₪</span>'+
+        '<label class="switch" title="מוצג בחנות"><input type="checkbox" class="act-in" data-id="'+p.id+'" '+(p.active?'checked':'')+'><span></span></label></div>';
+    });
+    html += '<p class="hint">המתג קובע אם המוצר מוצג ללקוחות (למשל כשאזל מהמלאי).</p>';
+    html += '<button class="btn btn-primary" style="margin-top:10px" data-action="savePrices">שמירת מחירון</button>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function handleShopAction(action, el){
+  if(action==='shopCat'){ STATE.params.cat=el.getAttribute('data-cat'); STATE.params.open=null; render(); return true; }
+  if(action==='prodToggle'){ var id=el.getAttribute('data-id'); STATE.params.open = STATE.params.open===id? null : id; render(); return true; }
+  if(action==='cartAdd'){ var id=el.getAttribute('data-id'); DB.cart[id]=(DB.cart[id]||0)+1; saveData(DB); render(); if(cartCount()===1) showToast('נוסף לסל'); return true; }
+  if(action==='cartSub'){ var id=el.getAttribute('data-id'); DB.cart[id]=(DB.cart[id]||0)-1; if(DB.cart[id]<=0) delete DB.cart[id]; saveData(DB); render(); return true; }
+  if(action==='setDelivery'){ STATE.params.delivery=el.getAttribute('data-v'); render(); return true; }
+  if(action==='placeOrder'){
+    var name=document.getElementById('or-name').value.trim();
+    var phone=document.getElementById('or-phone').value.trim();
+    var addrEl=document.getElementById('or-addr');
+    var addr=addrEl? addrEl.value.trim() : '';
+    var errEl=document.getElementById('or-phone-err');
+    if(!name){ showToast('נא להזין שם מלא'); return true; }
+    if(!validPhone(phone)){ errEl.style.display='block'; return true; }
+    if(addrEl && !addr){ showToast('נא להזין כתובת למשלוח'); return true; }
+    var del=STATE.params.delivery||'pickup';
+    var items=Object.keys(DB.cart).map(function(id){ var p=product(id); return {id:id,name:p.name,price:p.price,qty:DB.cart[id]}; });
+    var fee=del==='ship'?DELIVERY_FEE:0;
+    var o={id:uid(), num:1000+DB.orders.length+1, clientId:DB.currentClientId||null, name:name, phone:phone, delivery:del, address:addr,
+      note:document.getElementById('or-note').value.trim(), items:items, fee:fee, total:cartTotal()+fee, date:todayStr(), status:'new'};
+    DB.orders.push(o); DB.cart={}; saveData(DB);
+    pushState('landing','order-done',{id:o.id});
+    return true;
+  }
+  if(action==='shopTab'){ STATE.params.tab=el.getAttribute('data-tab'); render(); return true; }
+  if(action==='orderStatus'){
+    var id=el.getAttribute('data-id'), s=el.getAttribute('data-s');
+    DB.orders.forEach(function(o){ if(o.id===id) o.status=s; });
+    saveData(DB); render(); showToast('סטטוס עודכן: '+ORDER_STATUS[s]); return true;
+  }
+  if(action==='savePrices'){
+    document.querySelectorAll('.price-in').forEach(function(inp){ var p=product(inp.getAttribute('data-id')); var v=parseInt(inp.value,10); if(p && v>=0) p.price=v; });
+    document.querySelectorAll('.act-in').forEach(function(inp){ var p=product(inp.getAttribute('data-id')); if(p) p.active=inp.checked; });
+    DB.pricesConfirmed=true; saveData(DB); render(); showToast('המחירון נשמר'); return true;
+  }
+  return false;
+}
+
+/* ---------- ROUTER / RENDER ---------- */
+
+function render(){
+  var app=document.getElementById('app');
+  var body='';
+  body += topbar();
+
+  if(STATE.area==='landing'){
+    if(STATE.view==='home') body += renderLandingHome();
+    else if(STATE.view==='login') body += renderLogin();
+    else if(STATE.view==='intake') body += (STATE.intake.step<INTAKE_Q().length ? renderIntake() : (STATE.intake.answers.urgency==='עדיין שוקלת, לא כרגע' ? renderIntakeFollowup() : renderConsent()));
+    else if(STATE.view==='booking-only') body += renderBooking();
+    else if(STATE.view==='booking') body += renderBooking();
+    else if(STATE.view==='new-client-details') body += renderClientDetailsForm();
+    else if(STATE.view==='booking-done') body += renderBookingDone();
+    else if(STATE.view==='dashboard') body += renderClientDashboard();
+    else if(STATE.view==='pedicure') body += renderPedicure();
+    else if(STATE.view==='pedi-intake') body += renderPediIntake();
+    else if(STATE.view==='shop') body += renderShop();
+    else if(STATE.view==='cart') body += renderCart();
+    else if(STATE.view==='order-done') body += renderOrderDone();
+    else body += renderLandingHome();
+  } else if(STATE.area==='admin'){
+    if(STATE.view==='overview') body += renderAdminOverview();
+    else if(STATE.view==='calendar') body += renderAdminCalendar();
+    else if(STATE.view==='add-appt') body += renderAdminAddAppt();
+    else if(STATE.view==='clients') body += renderAdminClients();
+    else if(STATE.view==='client-detail') body += renderClientDetail();
+    else if(STATE.view==='alerts') body += renderAdminAlerts();
+    else if(STATE.view==='reminders') body += renderAdminReminders();
+    else if(STATE.view==='shop') body += renderAdminShop();
+    else body += renderAdminOverview();
+    body += adminNav();
+  }
+
+  app.innerHTML = body;
+}
+
+/* ---------- EVENT HANDLING ---------- */
+
+document.addEventListener('click', function(e){
+  var navEl=e.target.closest('[data-nav]');
+  if(navEl){
+    var parts=navEl.getAttribute('data-nav').split(':');
+    var area=parts[0], view=parts[1]||'home';
+    if(area==='admin' && view===undefined) view='overview';
+    if(area==='landing' && !view) view='home';
+    if(area==='admin' && parts.length===1) view='overview';
+    if(view==='intake'){ STATE.intake={step:0, answers:{}}; }
+    if(view==='booking' || view==='booking-only'){ STATE.booking={}; }
+    pushState(area, view, {});
+    return;
+  }
+  var actionEl=e.target.closest('[data-action]');
+  if(!actionEl) return;
+  var action=actionEl.getAttribute('data-action');
+  handleAction(action, actionEl, e);
+});
+
+document.addEventListener('change', function(e){
+  if(e.target.id==='ap-existing'){
+    var val=e.target.value;
+    document.getElementById('ap-new-fields').style.display = val ? 'none' : 'block';
+  }
+});
+document.addEventListener('keyup', function(e){
+  if(e.target.id==='client-search'){
+    STATE.params.q=e.target.value;
+    render();
+    var inp=document.getElementById('client-search');
+    if(inp){ inp.focus(); inp.selectionStart=inp.selectionEnd=inp.value.length; }
+  }
+});
+
+function validPhone(v){ return /^05\d{8}$/.test(v); }
+
+function handleAction(action, el){
+  if(handleShopAction(action, el)) return;
+  if(action==='pediStart'){ STATE.pedi={gender:null, problems:[], health:[]}; pushState('landing','pedi-intake',{}); return; }
+  if(action==='pediGender'){ STATE.pedi.gender=el.getAttribute('data-g'); render(); return; }
+  if(action==='pediToggle'){
+    var lst=el.getAttribute('data-list'); var src=lst==='problems'?PEDI_PROBLEMS:PEDI_HEALTH;
+    var t=src[+el.getAttribute('data-i')]; var arr=STATE.pedi[lst]; var none=PEDI_HEALTH[PEDI_HEALTH.length-1];
+    var ix=arr.indexOf(t);
+    if(ix>-1) arr.splice(ix,1);
+    else {
+      if(lst==='health'){ if(t===none) arr.length=0; else { var nx=arr.indexOf(none); if(nx>-1) arr.splice(nx,1); } }
+      arr.push(t);
+    }
+    var keepChk=document.getElementById('pedi-consent'); var wasChecked=keepChk&&keepChk.checked;
+    render();
+    var nc=document.getElementById('pedi-consent'); if(nc) nc.checked=wasChecked;
+    return;
+  }
+  if(action==='pediContinue'){
+    var P=STATE.pedi;
+    if(!P.gender){ showToast('נא לבחור עבור מי הטיפול'); return; }
+    if(!P.problems.length){ showToast('נא לבחור מה מפריע לך'); return; }
+    if(!P.health.length){ showToast('נא לסמן מצב בריאותי'); return; }
+    if(!document.getElementById('pedi-consent').checked){ showToast('נא לאשר את הפרטים כדי להמשיך'); return; }
+    STATE.booking={service:'pedicure', price:PEDI_PRICE[P.gender], gender:P.gender, problems:P.problems.slice(),
+      healthText:'פדיקור: '+P.health.join(', ')};
+    pushState('landing','booking',{});
+    return;
+  }
+  if(action==='toPediIntake'){ pushState('landing','pedi-intake',{}); return; }
+  if(action==='logout'){ DB.currentClientId=null; saveData(DB); pushState('landing','home',{}); return; }
+  if(action==='loginAs'){ DB.currentClientId=el.getAttribute('data-id'); saveData(DB); pushState('landing','dashboard',{}); return; }
+
+  if(action==='intakeBack'){
+    if(STATE.intake.step===0){ pushState('landing','home',{}); }
+    else{ STATE.intake.step--; render(); }
+    return;
+  }
+  if(action==='intakeSelect'){
+    var key=el.getAttribute('data-key'), val=el.getAttribute('data-val');
+    STATE.intake.answers[key]=val;
+    setTimeout(function(){
+      STATE.intake.step++;
+      render();
+    }, 150);
+    return;
+  }
+  if(action==='intakeBackToLast'){
+    STATE.intake.step=INTAKE_Q().length-1;
+    render();
+    return;
+  }
+  if(action==='submitFollowup'){
+    var name=document.getElementById('fu-name').value.trim();
+    var phone=document.getElementById('fu-phone').value.trim();
+    var errEl=document.getElementById('fu-phone-err');
+    if(!validPhone(phone)){ errEl.style.display='block'; return; }
+    errEl.style.display='none';
+    showToast('הפרטים נשמרו, ניצור קשר בקרוב');
+    pushState('landing','home',{});
+    return;
+  }
+  if(action==='confirmConsent'){
+    var chk=document.getElementById('consent-check');
+    if(!chk.checked){ showToast('נא לאשר את ההסכמה כדי להמשיך'); return; }
+    STATE.booking={};
+    pushState('landing','booking',{});
+    return;
+  }
+  if(action==='toConsent'){
+    pushState('landing','intake',{});
+    STATE.intake.step=INTAKE_Q().length-1;
+    render();
+    return;
+  }
+  if(action==='calPrev' || action==='calNext'){
+    var b=STATE.booking.month!==undefined? STATE.booking : (STATE.view==='add-appt'? STATE.booking : STATE.booking);
+    var delta = action==='calNext' ? -1 : 1;
+    var d=new Date(b.year, b.month+delta, 1);
+    b.month=d.getMonth(); b.year=d.getFullYear();
+    render();
+    return;
+  }
+  if(action==='pickDate'){
+    STATE.booking.date=el.getAttribute('data-date');
+    STATE.booking.time=null;
+    render();
+    return;
+  }
+  if(action==='pickTime'){
+    STATE.booking.time=el.getAttribute('data-time');
+    render();
+    return;
+  }
+  if(action==='confirmBooking'){
+    if(DB.currentClientId){
+      finalizeAppointment(DB.currentClientId);
+      pushState('landing','booking-done',{});
+    } else {
+      pushState('landing','new-client-details',{});
+    }
+    return;
+  }
+  if(action==='finalizeBooking'){
+    var name=document.getElementById('nc-name').value.trim();
+    var phone=document.getElementById('nc-phone').value.trim();
+    var email=document.getElementById('nc-email').value.trim();
+    var errEl=document.getElementById('nc-phone-err');
+    if(!name || !validPhone(phone)){
+      if(!validPhone(phone)) errEl.style.display='block';
+      if(!name) showToast('נא להזין שם מלא');
+      return;
+    }
+    errEl.style.display='none';
+    var isPediB=STATE.booking.service==='pedicure';
+    var newC={id:uid(), name:name, phone:phone, email:email, consent:true, health:(isPediB? STATE.booking.healthText : 'טרם עודכן'), sessionsTotal:(isPediB?0:12), sessionsUsed:0, paid:0, owed:0, photos:[], history:[], joined:todayStr()};
+    DB.clients.push(newC);
+    DB.currentClientId=newC.id;
+    finalizeAppointment(newC.id);
+    saveData(DB);
+    pushState('landing','booking-done',{});
+    return;
+  }
+  if(action==='cancelAppt'){
+    var id=el.getAttribute('data-id');
+    DB.appointments.forEach(function(a){ if(a.id===id) a.status='cancelled'; });
+    saveData(DB);
+    showToast('התור בוטל');
+    render();
+    return;
+  }
+  if(action==='rescheduleStart'){
+    var id=el.getAttribute('data-id');
+    DB.appointments.forEach(function(a){ if(a.id===id) a.status='cancelled'; });
+    saveData(DB);
+    STATE.booking={};
+    pushState('landing','booking-only',{});
+    return;
+  }
+
+  if(action==='openClient'){
+    pushState('admin','client-detail',{id:el.getAttribute('data-id')});
+    return;
+  }
+  if(action==='sendReminder'){
+    var c=client(el.getAttribute('data-id'));
+    var a=c? nextApptFor(c.id) : null;
+    if(!c || !phoneValid(c.phone)){ showToast('אין מספר טלפון תקין ללקוחה'); return; }
+    if(!a){ showToast('אין ללקוחה תור עתידי'); return; }
+    if(!a.reminder) a.reminder={sentAt:null,response:null};
+    var now=new Date(); a.reminder.sentAt=pad(now.getHours())+':'+pad(now.getMinutes()); saveData(DB);
+    window.open(waLink(c.phone, buildReminder(a)), '_blank', 'noopener');
+    showToast('נפתח וואטסאפ עם התזכורת');
+    return;
+  }
+  if(action==='markSent'){
+    var id=el.getAttribute('data-id');
+    DB.appointments.forEach(function(a){ if(a.id===id){ var n=new Date(); a.reminder.sentAt=pad(n.getHours())+':'+pad(n.getMinutes()); } });
+    saveData(DB);
+    setTimeout(render, 300);
+    return;
+  }
+  if(action==='remResp'){
+    var id=el.getAttribute('data-id'), r=el.getAttribute('data-r');
+    DB.appointments.forEach(function(a){ if(a.id===id) a.reminder.response = (a.reminder.response===r? null : r); });
+    saveData(DB); render();
+    showToast(r==='confirmed'?'סומן: אישרה הגעה':'סומן: ביקשה שינוי מועד');
+    return;
+  }
+  if(action==='saveRemSettings'){
+    var st=DB.reminderSettings;
+    st.auto=document.getElementById('rem-auto').checked;
+    st.sendTime=document.getElementById('rem-time').value;
+    st.template=document.getElementById('rem-template').value.trim() || DEFAULT_TEMPLATE;
+    st.prep=document.getElementById('rem-prep').value;
+    saveData(DB); render();
+    showToast('הגדרות התזכורת נשמרו');
+    return;
+  }
+  if(action==='resetRemTemplate'){
+    DB.reminderSettings.template=DEFAULT_TEMPLATE; saveData(DB); render();
+    showToast('הנוסח הוחזר לברירת המחדל');
+    return;
+  }
+  if(action==='addNote'){
+    var id=el.getAttribute('data-id');
+    var txt=document.getElementById('new-note').value.trim();
+    if(!txt) return;
+    var c=client(id);
+    c.history.push({date:todayStr(), note:txt});
+    saveData(DB);
+    render();
+    return;
+  }
+  if(action==='filterClients'){
+    STATE.params.filter=el.getAttribute('data-f');
+    render();
+    return;
+  }
+  if(action==='adminDay'){
+    var dir=parseInt(el.getAttribute('data-dir'),10);
+    var cur=STATE.params.date || todayStr();
+    var d=new Date(cur+'T00:00:00');
+    d.setDate(d.getDate()+ (dir===1? -1 : 1));
+    STATE.params.date=fmtDate(d);
+    render();
+    return;
+  }
+  if(action==='saveManualAppt'){
+    var existing=document.getElementById('ap-existing').value;
+    var svc=document.getElementById('ap-service').value;
+    var isPedi=svc!=='face';
+    var cid=existing;
+    if(!existing){
+      var name=document.getElementById('ap-name').value.trim();
+      var phone=document.getElementById('ap-phone').value.trim();
+      var errEl=document.getElementById('ap-phone-err');
+      if(!name){ showToast('נא להזין שם'); return; }
+      if(!validPhone(phone)){ errEl.style.display='block'; return; }
+      errEl.style.display='none';
+      var newC={id:uid(), name:name, phone:phone, email:'', consent:true, health:'טרם עודכן', sessionsTotal:(isPedi?0:12), sessionsUsed:0, paid:0, owed:0, photos:[], history:[], joined:todayStr()};
+      DB.clients.push(newC);
+      cid=newC.id;
+    }
+    if(!STATE.booking.date || !STATE.booking.time){ showToast('נא לבחור תאריך ושעה'); return; }
+    DB.appointments.push({id:uid(), clientId:cid, date:STATE.booking.date, time:STATE.booking.time, status:'confirmed', manual:true, service:(isPedi?'pedicure':'face'), price:(svc==='pedi-men'?250:200)});
+    saveData(DB);
+    showToast('התור נשמר');
+    pushState('admin','calendar',{date:STATE.booking.date});
+    return;
+  }
+}
+
+function finalizeAppointment(clientId){
+  var b=STATE.booking;
+  var appt={id:uid(), clientId:clientId, date:b.date, time:b.time, status:'confirmed', manual:false, service:(b.service||'face'), price:(b.price||200)};
+  if(b.service==='pedicure'){ appt.pedi={gender:b.gender, problems:b.problems}; }
+  DB.appointments.push(appt);
+  var c=client(clientId);
+  if(c && b.service==='pedicure'){
+    c.pediHealth=b.healthText;
+    if(!c.health || c.health==='טרם עודכן') c.health=b.healthText;
+    else if(c.health.indexOf('פדיקור:')<0) c.health+=' | '+b.healthText;
+    c.history=c.history||[];
+    c.history.push({date:b.date, note:'פדיקור רפואי נקבע: '+(b.problems||[]).join(', ')});
+  }
+  saveData(DB);
+}
+
+render();
+</script>
+</body>
+</html>
